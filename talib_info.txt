@@ -1,0 +1,3611 @@
+Help on package talib:
+
+NAME
+    talib
+
+PACKAGE CONTENTS
+    _ta_lib
+    abstract
+    deprecated
+    stream
+
+SUBMODULES
+    func
+
+FUNCTIONS
+    ACOS(real)
+        ACOS(real)
+        
+        Vector Trigonometric ACos (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    AD(high, low, close, volume)
+        AD(high, low, close, volume)
+        
+        Chaikin A/D Line (Volume Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close', 'volume']
+        Outputs:
+            real
+    
+    ADD(real0, real1)
+        ADD(real0, real1)
+        
+        Vector Arithmetic Add (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    ADOSC(high, low, close, volume, fastperiod=-2147483648, slowperiod=-2147483648)
+        ADOSC(high, low, close, volume[, fastperiod=?, slowperiod=?])
+        
+        Chaikin A/D Oscillator (Volume Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close', 'volume']
+        Parameters:
+            fastperiod: 3
+            slowperiod: 10
+        Outputs:
+            real
+    
+    ADX(high, low, close, timeperiod=-2147483648)
+        ADX(high, low, close[, timeperiod=?])
+        
+        Average Directional Movement Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    ADXR(high, low, close, timeperiod=-2147483648)
+        ADXR(high, low, close[, timeperiod=?])
+        
+        Average Directional Movement Index Rating (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    APO(real, fastperiod=-2147483648, slowperiod=-2147483648, matype=0)
+        APO(real[, fastperiod=?, slowperiod=?, matype=?])
+        
+        Absolute Price Oscillator (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            slowperiod: 26
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    AROON(high, low, timeperiod=-2147483648)
+        AROON(high, low[, timeperiod=?])
+        
+        Aroon (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            aroondown
+            aroonup
+    
+    AROONOSC(high, low, timeperiod=-2147483648)
+        AROONOSC(high, low[, timeperiod=?])
+        
+        Aroon Oscillator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    ASIN(real)
+        ASIN(real)
+        
+        Vector Trigonometric ASin (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    ATAN(real)
+        ATAN(real)
+        
+        Vector Trigonometric ATan (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    ATR(high, low, close, timeperiod=-2147483648)
+        ATR(high, low, close[, timeperiod=?])
+        
+        Average True Range (Volatility Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    AVGPRICE(open, high, low, close)
+        AVGPRICE(open, high, low, close)
+        
+        Average Price (Price Transform)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            real
+    
+    BBANDS(real, timeperiod=-2147483648, nbdevup=-4e+37, nbdevdn=-4e+37, matype=0)
+        BBANDS(real[, timeperiod=?, nbdevup=?, nbdevdn=?, matype=?])
+        
+        Bollinger Bands (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            nbdevup: 2.0
+            nbdevdn: 2.0
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            upperband
+            middleband
+            lowerband
+    
+    BETA(real0, real1, timeperiod=-2147483648)
+        BETA(real0, real1[, timeperiod=?])
+        
+        Beta (Statistic Functions)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Parameters:
+            timeperiod: 5
+        Outputs:
+            real
+    
+    BOP(open, high, low, close)
+        BOP(open, high, low, close)
+        
+        Balance Of Power (Momentum Indicators)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            real
+    
+    CCI(high, low, close, timeperiod=-2147483648)
+        CCI(high, low, close[, timeperiod=?])
+        
+        Commodity Channel Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    CDL2CROWS(open, high, low, close)
+        CDL2CROWS(open, high, low, close)
+        
+        Two Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDL3BLACKCROWS(open, high, low, close)
+        CDL3BLACKCROWS(open, high, low, close)
+        
+        Three Black Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDL3INSIDE(open, high, low, close)
+        CDL3INSIDE(open, high, low, close)
+        
+        Three Inside Up/Down (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDL3LINESTRIKE(open, high, low, close)
+        CDL3LINESTRIKE(open, high, low, close)
+        
+        Three-Line Strike  (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDL3OUTSIDE(open, high, low, close)
+        CDL3OUTSIDE(open, high, low, close)
+        
+        Three Outside Up/Down (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDL3STARSINSOUTH(open, high, low, close)
+        CDL3STARSINSOUTH(open, high, low, close)
+        
+        Three Stars In The South (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDL3WHITESOLDIERS(open, high, low, close)
+        CDL3WHITESOLDIERS(open, high, low, close)
+        
+        Three Advancing White Soldiers (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLABANDONEDBABY(open, high, low, close, penetration=0.3)
+        CDLABANDONEDBABY(open, high, low, close[, penetration=?])
+        
+        Abandoned Baby (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLADVANCEBLOCK(open, high, low, close)
+        CDLADVANCEBLOCK(open, high, low, close)
+        
+        Advance Block (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLBELTHOLD(open, high, low, close)
+        CDLBELTHOLD(open, high, low, close)
+        
+        Belt-hold (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLBREAKAWAY(open, high, low, close)
+        CDLBREAKAWAY(open, high, low, close)
+        
+        Breakaway (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLCLOSINGMARUBOZU(open, high, low, close)
+        CDLCLOSINGMARUBOZU(open, high, low, close)
+        
+        Closing Marubozu (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLCONCEALBABYSWALL(open, high, low, close)
+        CDLCONCEALBABYSWALL(open, high, low, close)
+        
+        Concealing Baby Swallow (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLCOUNTERATTACK(open, high, low, close)
+        CDLCOUNTERATTACK(open, high, low, close)
+        
+        Counterattack (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLDARKCLOUDCOVER(open, high, low, close, penetration=0.5)
+        CDLDARKCLOUDCOVER(open, high, low, close[, penetration=?])
+        
+        Dark Cloud Cover (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.5
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLDOJI(open, high, low, close)
+        CDLDOJI(open, high, low, close)
+        
+        Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLDOJISTAR(open, high, low, close)
+        CDLDOJISTAR(open, high, low, close)
+        
+        Doji Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLDRAGONFLYDOJI(open, high, low, close)
+        CDLDRAGONFLYDOJI(open, high, low, close)
+        
+        Dragonfly Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLENGULFING(open, high, low, close)
+        CDLENGULFING(open, high, low, close)
+        
+        Engulfing Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLEVENINGDOJISTAR(open, high, low, close, penetration=0.3)
+        CDLEVENINGDOJISTAR(open, high, low, close[, penetration=?])
+        
+        Evening Doji Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLEVENINGSTAR(open, high, low, close, penetration=0.3)
+        CDLEVENINGSTAR(open, high, low, close[, penetration=?])
+        
+        Evening Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLGAPSIDESIDEWHITE(open, high, low, close)
+        CDLGAPSIDESIDEWHITE(open, high, low, close)
+        
+        Up/Down-gap side-by-side white lines (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLGRAVESTONEDOJI(open, high, low, close)
+        CDLGRAVESTONEDOJI(open, high, low, close)
+        
+        Gravestone Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHAMMER(open, high, low, close)
+        CDLHAMMER(open, high, low, close)
+        
+        Hammer (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHANGINGMAN(open, high, low, close)
+        CDLHANGINGMAN(open, high, low, close)
+        
+        Hanging Man (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHARAMI(open, high, low, close)
+        CDLHARAMI(open, high, low, close)
+        
+        Harami Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHARAMICROSS(open, high, low, close)
+        CDLHARAMICROSS(open, high, low, close)
+        
+        Harami Cross Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHIGHWAVE(open, high, low, close)
+        CDLHIGHWAVE(open, high, low, close)
+        
+        High-Wave Candle (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHIKKAKE(open, high, low, close)
+        CDLHIKKAKE(open, high, low, close)
+        
+        Hikkake Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHIKKAKEMOD(open, high, low, close)
+        CDLHIKKAKEMOD(open, high, low, close)
+        
+        Modified Hikkake Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLHOMINGPIGEON(open, high, low, close)
+        CDLHOMINGPIGEON(open, high, low, close)
+        
+        Homing Pigeon (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLIDENTICAL3CROWS(open, high, low, close)
+        CDLIDENTICAL3CROWS(open, high, low, close)
+        
+        Identical Three Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLINNECK(open, high, low, close)
+        CDLINNECK(open, high, low, close)
+        
+        In-Neck Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLINVERTEDHAMMER(open, high, low, close)
+        CDLINVERTEDHAMMER(open, high, low, close)
+        
+        Inverted Hammer (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLKICKING(open, high, low, close)
+        CDLKICKING(open, high, low, close)
+        
+        Kicking (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLKICKINGBYLENGTH(open, high, low, close)
+        CDLKICKINGBYLENGTH(open, high, low, close)
+        
+        Kicking - bull/bear determined by the longer marubozu (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLLADDERBOTTOM(open, high, low, close)
+        CDLLADDERBOTTOM(open, high, low, close)
+        
+        Ladder Bottom (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLLONGLEGGEDDOJI(open, high, low, close)
+        CDLLONGLEGGEDDOJI(open, high, low, close)
+        
+        Long Legged Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLLONGLINE(open, high, low, close)
+        CDLLONGLINE(open, high, low, close)
+        
+        Long Line Candle (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLMARUBOZU(open, high, low, close)
+        CDLMARUBOZU(open, high, low, close)
+        
+        Marubozu (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLMATCHINGLOW(open, high, low, close)
+        CDLMATCHINGLOW(open, high, low, close)
+        
+        Matching Low (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLMATHOLD(open, high, low, close, penetration=0.5)
+        CDLMATHOLD(open, high, low, close[, penetration=?])
+        
+        Mat Hold (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.5
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLMORNINGDOJISTAR(open, high, low, close, penetration=0.3)
+        CDLMORNINGDOJISTAR(open, high, low, close[, penetration=?])
+        
+        Morning Doji Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLMORNINGSTAR(open, high, low, close, penetration=0.3)
+        CDLMORNINGSTAR(open, high, low, close[, penetration=?])
+        
+        Morning Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLONNECK(open, high, low, close)
+        CDLONNECK(open, high, low, close)
+        
+        On-Neck Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLPIERCING(open, high, low, close)
+        CDLPIERCING(open, high, low, close)
+        
+        Piercing Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLRICKSHAWMAN(open, high, low, close)
+        CDLRICKSHAWMAN(open, high, low, close)
+        
+        Rickshaw Man (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLRISEFALL3METHODS(open, high, low, close)
+        CDLRISEFALL3METHODS(open, high, low, close)
+        
+        Rising/Falling Three Methods (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLSEPARATINGLINES(open, high, low, close)
+        CDLSEPARATINGLINES(open, high, low, close)
+        
+        Separating Lines (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLSHOOTINGSTAR(open, high, low, close)
+        CDLSHOOTINGSTAR(open, high, low, close)
+        
+        Shooting Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLSHORTLINE(open, high, low, close)
+        CDLSHORTLINE(open, high, low, close)
+        
+        Short Line Candle (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLSPINNINGTOP(open, high, low, close)
+        CDLSPINNINGTOP(open, high, low, close)
+        
+        Spinning Top (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLSTALLEDPATTERN(open, high, low, close)
+        CDLSTALLEDPATTERN(open, high, low, close)
+        
+        Stalled Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLSTICKSANDWICH(open, high, low, close)
+        CDLSTICKSANDWICH(open, high, low, close)
+        
+        Stick Sandwich (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLTAKURI(open, high, low, close)
+        CDLTAKURI(open, high, low, close)
+        
+        Takuri (Dragonfly Doji with very long lower shadow) (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLTASUKIGAP(open, high, low, close)
+        CDLTASUKIGAP(open, high, low, close)
+        
+        Tasuki Gap (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLTHRUSTING(open, high, low, close)
+        CDLTHRUSTING(open, high, low, close)
+        
+        Thrusting Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLTRISTAR(open, high, low, close)
+        CDLTRISTAR(open, high, low, close)
+        
+        Tristar Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLUNIQUE3RIVER(open, high, low, close)
+        CDLUNIQUE3RIVER(open, high, low, close)
+        
+        Unique 3 River (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLUPSIDEGAP2CROWS(open, high, low, close)
+        CDLUPSIDEGAP2CROWS(open, high, low, close)
+        
+        Upside Gap Two Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CDLXSIDEGAP3METHODS(open, high, low, close)
+        CDLXSIDEGAP3METHODS(open, high, low, close)
+        
+        Upside/Downside Gap Three Methods (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    CEIL(real)
+        CEIL(real)
+        
+        Vector Ceil (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    CMO(real, timeperiod=-2147483648)
+        CMO(real[, timeperiod=?])
+        
+        Chande Momentum Oscillator (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    CORREL(real0, real1, timeperiod=-2147483648)
+        CORREL(real0, real1[, timeperiod=?])
+        
+        Pearson's Correlation Coefficient (r) (Statistic Functions)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    COS(real)
+        COS(real)
+        
+        Vector Trigonometric Cos (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    COSH(real)
+        COSH(real)
+        
+        Vector Trigonometric Cosh (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    DEMA(real, timeperiod=-2147483648)
+        DEMA(real[, timeperiod=?])
+        
+        Double Exponential Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    DIV(real0, real1)
+        DIV(real0, real1)
+        
+        Vector Arithmetic Div (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    DX(high, low, close, timeperiod=-2147483648)
+        DX(high, low, close[, timeperiod=?])
+        
+        Directional Movement Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    EMA(real, timeperiod=-2147483648)
+        EMA(real[, timeperiod=?])
+        
+        Exponential Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    EXP(real)
+        EXP(real)
+        
+        Vector Arithmetic Exp (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    FLOOR(real)
+        FLOOR(real)
+        
+        Vector Floor (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    HT_DCPERIOD(real)
+        HT_DCPERIOD(real)
+        
+        Hilbert Transform - Dominant Cycle Period (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    HT_DCPHASE(real)
+        HT_DCPHASE(real)
+        
+        Hilbert Transform - Dominant Cycle Phase (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    HT_PHASOR(real)
+        HT_PHASOR(real)
+        
+        Hilbert Transform - Phasor Components (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            inphase
+            quadrature
+    
+    HT_SINE(real)
+        HT_SINE(real)
+        
+        Hilbert Transform - SineWave (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            sine
+            leadsine
+    
+    HT_TRENDLINE(real)
+        HT_TRENDLINE(real)
+        
+        Hilbert Transform - Instantaneous Trendline (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    HT_TRENDMODE(real)
+        HT_TRENDMODE(real)
+        
+        Hilbert Transform - Trend vs Cycle Mode (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    KAMA(real, timeperiod=-2147483648)
+        KAMA(real[, timeperiod=?])
+        
+        Kaufman Adaptive Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    LINEARREG(real, timeperiod=-2147483648)
+        LINEARREG(real[, timeperiod=?])
+        
+        Linear Regression (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    LINEARREG_ANGLE(real, timeperiod=-2147483648)
+        LINEARREG_ANGLE(real[, timeperiod=?])
+        
+        Linear Regression Angle (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    LINEARREG_INTERCEPT(real, timeperiod=-2147483648)
+        LINEARREG_INTERCEPT(real[, timeperiod=?])
+        
+        Linear Regression Intercept (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    LINEARREG_SLOPE(real, timeperiod=-2147483648)
+        LINEARREG_SLOPE(real[, timeperiod=?])
+        
+        Linear Regression Slope (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    LN(real)
+        LN(real)
+        
+        Vector Log Natural (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    LOG10(real)
+        LOG10(real)
+        
+        Vector Log10 (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    MA(real, timeperiod=-2147483648, matype=0)
+        MA(real[, timeperiod=?, matype=?])
+        
+        Moving average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    MACD(real, fastperiod=-2147483648, slowperiod=-2147483648, signalperiod=-2147483648)
+        MACD(real[, fastperiod=?, slowperiod=?, signalperiod=?])
+        
+        Moving Average Convergence/Divergence (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            slowperiod: 26
+            signalperiod: 9
+        Outputs:
+            macd
+            macdsignal
+            macdhist
+    
+    MACDEXT(real, fastperiod=-2147483648, fastmatype=0, slowperiod=-2147483648, slowmatype=0, signalperiod=-2147483648, signalmatype=0)
+        MACDEXT(real[, fastperiod=?, fastmatype=?, slowperiod=?, slowmatype=?, signalperiod=?, signalmatype=?])
+        
+        MACD with controllable MA type (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            fastmatype: 0
+            slowperiod: 26
+            slowmatype: 0
+            signalperiod: 9
+            signalmatype: 0
+        Outputs:
+            macd
+            macdsignal
+            macdhist
+    
+    MACDFIX(real, signalperiod=-2147483648)
+        MACDFIX(real[, signalperiod=?])
+        
+        Moving Average Convergence/Divergence Fix 12/26 (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            signalperiod: 9
+        Outputs:
+            macd
+            macdsignal
+            macdhist
+    
+    MAMA(real, fastlimit=-4e+37, slowlimit=-4e+37)
+        MAMA(real[, fastlimit=?, slowlimit=?])
+        
+        MESA Adaptive Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastlimit: 0.5
+            slowlimit: 0.05
+        Outputs:
+            mama
+            fama
+    
+    MAVP(real, periods, minperiod=-2147483648, maxperiod=-2147483648, matype=0)
+        MAVP(real, periods[, minperiod=?, maxperiod=?, matype=?])
+        
+        Moving average with variable period (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+            periods: (any ndarray)
+        Parameters:
+            minperiod: 2
+            maxperiod: 30
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    MAX(real, timeperiod=-2147483648)
+        MAX(real[, timeperiod=?])
+        
+        Highest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    MAXINDEX(real, timeperiod=-2147483648)
+        MAXINDEX(real[, timeperiod=?])
+        
+        Index of highest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    MEDPRICE(high, low)
+        MEDPRICE(high, low)
+        
+        Median Price (Price Transform)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Outputs:
+            real
+    
+    MFI(high, low, close, volume, timeperiod=-2147483648)
+        MFI(high, low, close, volume[, timeperiod=?])
+        
+        Money Flow Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close', 'volume']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    MIDPOINT(real, timeperiod=-2147483648)
+        MIDPOINT(real[, timeperiod=?])
+        
+        MidPoint over period (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    MIDPRICE(high, low, timeperiod=-2147483648)
+        MIDPRICE(high, low[, timeperiod=?])
+        
+        Midpoint Price over period (Overlap Studies)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    MIN(real, timeperiod=-2147483648)
+        MIN(real[, timeperiod=?])
+        
+        Lowest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    MININDEX(real, timeperiod=-2147483648)
+        MININDEX(real[, timeperiod=?])
+        
+        Index of lowest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    MINMAX(real, timeperiod=-2147483648)
+        MINMAX(real[, timeperiod=?])
+        
+        Lowest and highest values over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            min
+            max
+    
+    MINMAXINDEX(real, timeperiod=-2147483648)
+        MINMAXINDEX(real[, timeperiod=?])
+        
+        Indexes of lowest and highest values over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            minidx
+            maxidx
+    
+    MINUS_DI(high, low, close, timeperiod=-2147483648)
+        MINUS_DI(high, low, close[, timeperiod=?])
+        
+        Minus Directional Indicator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    MINUS_DM(high, low, timeperiod=-2147483648)
+        MINUS_DM(high, low[, timeperiod=?])
+        
+        Minus Directional Movement (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    MOM(real, timeperiod=-2147483648)
+        MOM(real[, timeperiod=?])
+        
+        Momentum (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    MULT(real0, real1)
+        MULT(real0, real1)
+        
+        Vector Arithmetic Mult (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    NATR(high, low, close, timeperiod=-2147483648)
+        NATR(high, low, close[, timeperiod=?])
+        
+        Normalized Average True Range (Volatility Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    OBV(real, volume)
+        OBV(real, volume)
+        
+        On Balance Volume (Volume Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+            prices: ['volume']
+        Outputs:
+            real
+    
+    PLUS_DI(high, low, close, timeperiod=-2147483648)
+        PLUS_DI(high, low, close[, timeperiod=?])
+        
+        Plus Directional Indicator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    PLUS_DM(high, low, timeperiod=-2147483648)
+        PLUS_DM(high, low[, timeperiod=?])
+        
+        Plus Directional Movement (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    PPO(real, fastperiod=-2147483648, slowperiod=-2147483648, matype=0)
+        PPO(real[, fastperiod=?, slowperiod=?, matype=?])
+        
+        Percentage Price Oscillator (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            slowperiod: 26
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    ROC(real, timeperiod=-2147483648)
+        ROC(real[, timeperiod=?])
+        
+        Rate of change : ((real/prevPrice)-1)*100 (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    ROCP(real, timeperiod=-2147483648)
+        ROCP(real[, timeperiod=?])
+        
+        Rate of change Percentage: (real-prevPrice)/prevPrice (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    ROCR(real, timeperiod=-2147483648)
+        ROCR(real[, timeperiod=?])
+        
+        Rate of change ratio: (real/prevPrice) (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    ROCR100(real, timeperiod=-2147483648)
+        ROCR100(real[, timeperiod=?])
+        
+        Rate of change ratio 100 scale: (real/prevPrice)*100 (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    RSI(real, timeperiod=-2147483648)
+        RSI(real[, timeperiod=?])
+        
+        Relative Strength Index (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    SAR(high, low, acceleration=0.02, maximum=0.2)
+        SAR(high, low[, acceleration=?, maximum=?])
+        
+        Parabolic SAR (Overlap Studies)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            acceleration: 0.02
+            maximum: 0.2
+        Outputs:
+            real
+    
+    SAREXT(high, low, startvalue=-4e+37, offsetonreverse=-4e+37, accelerationinitlong=-4e+37, accelerationlong=-4e+37, accelerationmaxlong=-4e+37, accelerationinitshort=-4e+37, accelerationshort=-4e+37, accelerationmaxshort=-4e+37)
+        SAREXT(high, low[, startvalue=?, offsetonreverse=?, accelerationinitlong=?, accelerationlong=?, accelerationmaxlong=?, accelerationinitshort=?, accelerationshort=?, accelerationmaxshort=?])
+        
+        Parabolic SAR - Extended (Overlap Studies)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            startvalue: 0.0
+            offsetonreverse: 0.0
+            accelerationinitlong: 0.02
+            accelerationlong: 0.02
+            accelerationmaxlong: 0.2
+            accelerationinitshort: 0.02
+            accelerationshort: 0.02
+            accelerationmaxshort: 0.2
+        Outputs:
+            real
+    
+    SIN(real)
+        SIN(real)
+        
+        Vector Trigonometric Sin (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    SINH(real)
+        SINH(real)
+        
+        Vector Trigonometric Sinh (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    SMA(real, timeperiod=-2147483648)
+        SMA(real[, timeperiod=?])
+        
+        Simple Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    SQRT(real)
+        SQRT(real)
+        
+        Vector Square Root (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    STDDEV(real, timeperiod=-2147483648, nbdev=-4e+37)
+        STDDEV(real[, timeperiod=?, nbdev=?])
+        
+        Standard Deviation (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            nbdev: 1.0
+        Outputs:
+            real
+    
+    STOCH(high, low, close, fastk_period=-2147483648, slowk_period=-2147483648, slowk_matype=0, slowd_period=-2147483648, slowd_matype=0)
+        STOCH(high, low, close[, fastk_period=?, slowk_period=?, slowk_matype=?, slowd_period=?, slowd_matype=?])
+        
+        Stochastic (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            fastk_period: 5
+            slowk_period: 3
+            slowk_matype: 0
+            slowd_period: 3
+            slowd_matype: 0
+        Outputs:
+            slowk
+            slowd
+    
+    STOCHF(high, low, close, fastk_period=-2147483648, fastd_period=-2147483648, fastd_matype=0)
+        STOCHF(high, low, close[, fastk_period=?, fastd_period=?, fastd_matype=?])
+        
+        Stochastic Fast (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            fastk_period: 5
+            fastd_period: 3
+            fastd_matype: 0
+        Outputs:
+            fastk
+            fastd
+    
+    STOCHRSI(real, timeperiod=-2147483648, fastk_period=-2147483648, fastd_period=-2147483648, fastd_matype=0)
+        STOCHRSI(real[, timeperiod=?, fastk_period=?, fastd_period=?, fastd_matype=?])
+        
+        Stochastic Relative Strength Index (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+            fastk_period: 5
+            fastd_period: 3
+            fastd_matype: 0
+        Outputs:
+            fastk
+            fastd
+    
+    SUB(real0, real1)
+        SUB(real0, real1)
+        
+        Vector Arithmetic Subtraction (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    SUM(real, timeperiod=-2147483648)
+        SUM(real[, timeperiod=?])
+        
+        Summation (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    T3(real, timeperiod=-2147483648, vfactor=-4e+37)
+        T3(real[, timeperiod=?, vfactor=?])
+        
+        Triple Exponential Moving Average (T3) (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            vfactor: 0.7
+        Outputs:
+            real
+    
+    TAN(real)
+        TAN(real)
+        
+        Vector Trigonometric Tan (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    TANH(real)
+        TANH(real)
+        
+        Vector Trigonometric Tanh (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    TEMA(real, timeperiod=-2147483648)
+        TEMA(real[, timeperiod=?])
+        
+        Triple Exponential Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    TRANGE(high, low, close)
+        TRANGE(high, low, close)
+        
+        True Range (Volatility Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Outputs:
+            real
+    
+    TRIMA(real, timeperiod=-2147483648)
+        TRIMA(real[, timeperiod=?])
+        
+        Triangular Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    TRIX(real, timeperiod=-2147483648)
+        TRIX(real[, timeperiod=?])
+        
+        1-day Rate-Of-Change (ROC) of a Triple Smooth EMA (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    TSF(real, timeperiod=-2147483648)
+        TSF(real[, timeperiod=?])
+        
+        Time Series Forecast (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    TYPPRICE(high, low, close)
+        TYPPRICE(high, low, close)
+        
+        Typical Price (Price Transform)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Outputs:
+            real
+    
+    ULTOSC(high, low, close, timeperiod1=-2147483648, timeperiod2=-2147483648, timeperiod3=-2147483648)
+        ULTOSC(high, low, close[, timeperiod1=?, timeperiod2=?, timeperiod3=?])
+        
+        Ultimate Oscillator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod1: 7
+            timeperiod2: 14
+            timeperiod3: 28
+        Outputs:
+            real
+    
+    VAR(real, timeperiod=-2147483648, nbdev=-4e+37)
+        VAR(real[, timeperiod=?, nbdev=?])
+        
+        Variance (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            nbdev: 1.0
+        Outputs:
+            real
+    
+    WCLPRICE(high, low, close)
+        WCLPRICE(high, low, close)
+        
+        Weighted Close Price (Price Transform)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Outputs:
+            real
+    
+    WILLR(high, low, close, timeperiod=-2147483648)
+        WILLR(high, low, close[, timeperiod=?])
+        
+        Williams' %R (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    WMA(real, timeperiod=-2147483648)
+        WMA(real[, timeperiod=?])
+        
+        Weighted Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    get_function_groups()
+        Returns a dict with keys of function-group names and values of lists
+        of function names ie {'group_names': ['function_names']}
+    
+    get_functions()
+        Returns a list of all the functions supported by TALIB
+    
+    stream_ACOS(real)
+        ACOS(real)
+        
+        Vector Trigonometric ACos (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_AD(high, low, close, volume)
+        AD(high, low, close, volume)
+        
+        Chaikin A/D Line (Volume Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close', 'volume']
+        Outputs:
+            real
+    
+    stream_ADD(real0, real1)
+        ADD(real0, real1)
+        
+        Vector Arithmetic Add (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    stream_ADOSC(high, low, close, volume, fastperiod=-2147483648, slowperiod=-2147483648)
+        ADOSC(high, low, close, volume[, fastperiod=?, slowperiod=?])
+        
+        Chaikin A/D Oscillator (Volume Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close', 'volume']
+        Parameters:
+            fastperiod: 3
+            slowperiod: 10
+        Outputs:
+            real
+    
+    stream_ADX(high, low, close, timeperiod=-2147483648)
+        ADX(high, low, close[, timeperiod=?])
+        
+        Average Directional Movement Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_ADXR(high, low, close, timeperiod=-2147483648)
+        ADXR(high, low, close[, timeperiod=?])
+        
+        Average Directional Movement Index Rating (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_APO(real, fastperiod=-2147483648, slowperiod=-2147483648, matype=0)
+        APO(real[, fastperiod=?, slowperiod=?, matype=?])
+        
+        Absolute Price Oscillator (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            slowperiod: 26
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    stream_AROON(high, low, timeperiod=-2147483648)
+        AROON(high, low[, timeperiod=?])
+        
+        Aroon (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            aroondown
+            aroonup
+    
+    stream_AROONOSC(high, low, timeperiod=-2147483648)
+        AROONOSC(high, low[, timeperiod=?])
+        
+        Aroon Oscillator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_ASIN(real)
+        ASIN(real)
+        
+        Vector Trigonometric ASin (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_ATAN(real)
+        ATAN(real)
+        
+        Vector Trigonometric ATan (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_ATR(high, low, close, timeperiod=-2147483648)
+        ATR(high, low, close[, timeperiod=?])
+        
+        Average True Range (Volatility Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_AVGPRICE(open, high, low, close)
+        AVGPRICE(open, high, low, close)
+        
+        Average Price (Price Transform)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            real
+    
+    stream_BBANDS(real, timeperiod=-2147483648, nbdevup=-4e+37, nbdevdn=-4e+37, matype=0)
+        BBANDS(real[, timeperiod=?, nbdevup=?, nbdevdn=?, matype=?])
+        
+        Bollinger Bands (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            nbdevup: 2.0
+            nbdevdn: 2.0
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            upperband
+            middleband
+            lowerband
+    
+    stream_BETA(real0, real1, timeperiod=-2147483648)
+        BETA(real0, real1[, timeperiod=?])
+        
+        Beta (Statistic Functions)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Parameters:
+            timeperiod: 5
+        Outputs:
+            real
+    
+    stream_BOP(open, high, low, close)
+        BOP(open, high, low, close)
+        
+        Balance Of Power (Momentum Indicators)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            real
+    
+    stream_CCI(high, low, close, timeperiod=-2147483648)
+        CCI(high, low, close[, timeperiod=?])
+        
+        Commodity Channel Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_CDL2CROWS(open, high, low, close)
+        CDL2CROWS(open, high, low, close)
+        
+        Two Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDL3BLACKCROWS(open, high, low, close)
+        CDL3BLACKCROWS(open, high, low, close)
+        
+        Three Black Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDL3INSIDE(open, high, low, close)
+        CDL3INSIDE(open, high, low, close)
+        
+        Three Inside Up/Down (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDL3LINESTRIKE(open, high, low, close)
+        CDL3LINESTRIKE(open, high, low, close)
+        
+        Three-Line Strike  (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDL3OUTSIDE(open, high, low, close)
+        CDL3OUTSIDE(open, high, low, close)
+        
+        Three Outside Up/Down (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDL3STARSINSOUTH(open, high, low, close)
+        CDL3STARSINSOUTH(open, high, low, close)
+        
+        Three Stars In The South (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDL3WHITESOLDIERS(open, high, low, close)
+        CDL3WHITESOLDIERS(open, high, low, close)
+        
+        Three Advancing White Soldiers (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLABANDONEDBABY(open, high, low, close, penetration=0.3)
+        CDLABANDONEDBABY(open, high, low, close[, penetration=?])
+        
+        Abandoned Baby (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLADVANCEBLOCK(open, high, low, close)
+        CDLADVANCEBLOCK(open, high, low, close)
+        
+        Advance Block (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLBELTHOLD(open, high, low, close)
+        CDLBELTHOLD(open, high, low, close)
+        
+        Belt-hold (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLBREAKAWAY(open, high, low, close)
+        CDLBREAKAWAY(open, high, low, close)
+        
+        Breakaway (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLCLOSINGMARUBOZU(open, high, low, close)
+        CDLCLOSINGMARUBOZU(open, high, low, close)
+        
+        Closing Marubozu (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLCONCEALBABYSWALL(open, high, low, close)
+        CDLCONCEALBABYSWALL(open, high, low, close)
+        
+        Concealing Baby Swallow (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLCOUNTERATTACK(open, high, low, close)
+        CDLCOUNTERATTACK(open, high, low, close)
+        
+        Counterattack (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLDARKCLOUDCOVER(open, high, low, close, penetration=0.5)
+        CDLDARKCLOUDCOVER(open, high, low, close[, penetration=?])
+        
+        Dark Cloud Cover (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.5
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLDOJI(open, high, low, close)
+        CDLDOJI(open, high, low, close)
+        
+        Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLDOJISTAR(open, high, low, close)
+        CDLDOJISTAR(open, high, low, close)
+        
+        Doji Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLDRAGONFLYDOJI(open, high, low, close)
+        CDLDRAGONFLYDOJI(open, high, low, close)
+        
+        Dragonfly Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLENGULFING(open, high, low, close)
+        CDLENGULFING(open, high, low, close)
+        
+        Engulfing Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLEVENINGDOJISTAR(open, high, low, close, penetration=0.3)
+        CDLEVENINGDOJISTAR(open, high, low, close[, penetration=?])
+        
+        Evening Doji Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLEVENINGSTAR(open, high, low, close, penetration=0.3)
+        CDLEVENINGSTAR(open, high, low, close[, penetration=?])
+        
+        Evening Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLGAPSIDESIDEWHITE(open, high, low, close)
+        CDLGAPSIDESIDEWHITE(open, high, low, close)
+        
+        Up/Down-gap side-by-side white lines (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLGRAVESTONEDOJI(open, high, low, close)
+        CDLGRAVESTONEDOJI(open, high, low, close)
+        
+        Gravestone Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHAMMER(open, high, low, close)
+        CDLHAMMER(open, high, low, close)
+        
+        Hammer (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHANGINGMAN(open, high, low, close)
+        CDLHANGINGMAN(open, high, low, close)
+        
+        Hanging Man (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHARAMI(open, high, low, close)
+        CDLHARAMI(open, high, low, close)
+        
+        Harami Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHARAMICROSS(open, high, low, close)
+        CDLHARAMICROSS(open, high, low, close)
+        
+        Harami Cross Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHIGHWAVE(open, high, low, close)
+        CDLHIGHWAVE(open, high, low, close)
+        
+        High-Wave Candle (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHIKKAKE(open, high, low, close)
+        CDLHIKKAKE(open, high, low, close)
+        
+        Hikkake Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHIKKAKEMOD(open, high, low, close)
+        CDLHIKKAKEMOD(open, high, low, close)
+        
+        Modified Hikkake Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLHOMINGPIGEON(open, high, low, close)
+        CDLHOMINGPIGEON(open, high, low, close)
+        
+        Homing Pigeon (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLIDENTICAL3CROWS(open, high, low, close)
+        CDLIDENTICAL3CROWS(open, high, low, close)
+        
+        Identical Three Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLINNECK(open, high, low, close)
+        CDLINNECK(open, high, low, close)
+        
+        In-Neck Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLINVERTEDHAMMER(open, high, low, close)
+        CDLINVERTEDHAMMER(open, high, low, close)
+        
+        Inverted Hammer (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLKICKING(open, high, low, close)
+        CDLKICKING(open, high, low, close)
+        
+        Kicking (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLKICKINGBYLENGTH(open, high, low, close)
+        CDLKICKINGBYLENGTH(open, high, low, close)
+        
+        Kicking - bull/bear determined by the longer marubozu (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLLADDERBOTTOM(open, high, low, close)
+        CDLLADDERBOTTOM(open, high, low, close)
+        
+        Ladder Bottom (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLLONGLEGGEDDOJI(open, high, low, close)
+        CDLLONGLEGGEDDOJI(open, high, low, close)
+        
+        Long Legged Doji (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLLONGLINE(open, high, low, close)
+        CDLLONGLINE(open, high, low, close)
+        
+        Long Line Candle (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLMARUBOZU(open, high, low, close)
+        CDLMARUBOZU(open, high, low, close)
+        
+        Marubozu (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLMATCHINGLOW(open, high, low, close)
+        CDLMATCHINGLOW(open, high, low, close)
+        
+        Matching Low (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLMATHOLD(open, high, low, close, penetration=0.5)
+        CDLMATHOLD(open, high, low, close[, penetration=?])
+        
+        Mat Hold (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.5
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLMORNINGDOJISTAR(open, high, low, close, penetration=0.3)
+        CDLMORNINGDOJISTAR(open, high, low, close[, penetration=?])
+        
+        Morning Doji Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLMORNINGSTAR(open, high, low, close, penetration=0.3)
+        CDLMORNINGSTAR(open, high, low, close[, penetration=?])
+        
+        Morning Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Parameters:
+            penetration: 0.3
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLONNECK(open, high, low, close)
+        CDLONNECK(open, high, low, close)
+        
+        On-Neck Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLPIERCING(open, high, low, close)
+        CDLPIERCING(open, high, low, close)
+        
+        Piercing Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLRICKSHAWMAN(open, high, low, close)
+        CDLRICKSHAWMAN(open, high, low, close)
+        
+        Rickshaw Man (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLRISEFALL3METHODS(open, high, low, close)
+        CDLRISEFALL3METHODS(open, high, low, close)
+        
+        Rising/Falling Three Methods (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLSEPARATINGLINES(open, high, low, close)
+        CDLSEPARATINGLINES(open, high, low, close)
+        
+        Separating Lines (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLSHOOTINGSTAR(open, high, low, close)
+        CDLSHOOTINGSTAR(open, high, low, close)
+        
+        Shooting Star (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLSHORTLINE(open, high, low, close)
+        CDLSHORTLINE(open, high, low, close)
+        
+        Short Line Candle (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLSPINNINGTOP(open, high, low, close)
+        CDLSPINNINGTOP(open, high, low, close)
+        
+        Spinning Top (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLSTALLEDPATTERN(open, high, low, close)
+        CDLSTALLEDPATTERN(open, high, low, close)
+        
+        Stalled Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLSTICKSANDWICH(open, high, low, close)
+        CDLSTICKSANDWICH(open, high, low, close)
+        
+        Stick Sandwich (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLTAKURI(open, high, low, close)
+        CDLTAKURI(open, high, low, close)
+        
+        Takuri (Dragonfly Doji with very long lower shadow) (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLTASUKIGAP(open, high, low, close)
+        CDLTASUKIGAP(open, high, low, close)
+        
+        Tasuki Gap (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLTHRUSTING(open, high, low, close)
+        CDLTHRUSTING(open, high, low, close)
+        
+        Thrusting Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLTRISTAR(open, high, low, close)
+        CDLTRISTAR(open, high, low, close)
+        
+        Tristar Pattern (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLUNIQUE3RIVER(open, high, low, close)
+        CDLUNIQUE3RIVER(open, high, low, close)
+        
+        Unique 3 River (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLUPSIDEGAP2CROWS(open, high, low, close)
+        CDLUPSIDEGAP2CROWS(open, high, low, close)
+        
+        Upside Gap Two Crows (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CDLXSIDEGAP3METHODS(open, high, low, close)
+        CDLXSIDEGAP3METHODS(open, high, low, close)
+        
+        Upside/Downside Gap Three Methods (Pattern Recognition)
+        
+        Inputs:
+            prices: ['open', 'high', 'low', 'close']
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_CEIL(real)
+        CEIL(real)
+        
+        Vector Ceil (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_CMO(real, timeperiod=-2147483648)
+        CMO(real[, timeperiod=?])
+        
+        Chande Momentum Oscillator (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_CORREL(real0, real1, timeperiod=-2147483648)
+        CORREL(real0, real1[, timeperiod=?])
+        
+        Pearson's Correlation Coefficient (r) (Statistic Functions)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_COS(real)
+        COS(real)
+        
+        Vector Trigonometric Cos (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_COSH(real)
+        COSH(real)
+        
+        Vector Trigonometric Cosh (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_DEMA(real, timeperiod=-2147483648)
+        DEMA(real[, timeperiod=?])
+        
+        Double Exponential Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_DIV(real0, real1)
+        DIV(real0, real1)
+        
+        Vector Arithmetic Div (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    stream_DX(high, low, close, timeperiod=-2147483648)
+        DX(high, low, close[, timeperiod=?])
+        
+        Directional Movement Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_EMA(real, timeperiod=-2147483648)
+        EMA(real[, timeperiod=?])
+        
+        Exponential Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_EXP(real)
+        EXP(real)
+        
+        Vector Arithmetic Exp (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_FLOOR(real)
+        FLOOR(real)
+        
+        Vector Floor (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_HT_DCPERIOD(real)
+        HT_DCPERIOD(real)
+        
+        Hilbert Transform - Dominant Cycle Period (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_HT_DCPHASE(real)
+        HT_DCPHASE(real)
+        
+        Hilbert Transform - Dominant Cycle Phase (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_HT_PHASOR(real)
+        HT_PHASOR(real)
+        
+        Hilbert Transform - Phasor Components (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            inphase
+            quadrature
+    
+    stream_HT_SINE(real)
+        HT_SINE(real)
+        
+        Hilbert Transform - SineWave (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            sine
+            leadsine
+    
+    stream_HT_TRENDLINE(real)
+        HT_TRENDLINE(real)
+        
+        Hilbert Transform - Instantaneous Trendline (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_HT_TRENDMODE(real)
+        HT_TRENDMODE(real)
+        
+        Hilbert Transform - Trend vs Cycle Mode (Cycle Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_KAMA(real, timeperiod=-2147483648)
+        KAMA(real[, timeperiod=?])
+        
+        Kaufman Adaptive Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_LINEARREG(real, timeperiod=-2147483648)
+        LINEARREG(real[, timeperiod=?])
+        
+        Linear Regression (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_LINEARREG_ANGLE(real, timeperiod=-2147483648)
+        LINEARREG_ANGLE(real[, timeperiod=?])
+        
+        Linear Regression Angle (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_LINEARREG_INTERCEPT(real, timeperiod=-2147483648)
+        LINEARREG_INTERCEPT(real[, timeperiod=?])
+        
+        Linear Regression Intercept (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_LINEARREG_SLOPE(real, timeperiod=-2147483648)
+        LINEARREG_SLOPE(real[, timeperiod=?])
+        
+        Linear Regression Slope (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_LN(real)
+        LN(real)
+        
+        Vector Log Natural (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_LOG10(real)
+        LOG10(real)
+        
+        Vector Log10 (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_MA(real, timeperiod=-2147483648, matype=0)
+        MA(real[, timeperiod=?, matype=?])
+        
+        Moving average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    stream_MACD(real, fastperiod=-2147483648, slowperiod=-2147483648, signalperiod=-2147483648)
+        MACD(real[, fastperiod=?, slowperiod=?, signalperiod=?])
+        
+        Moving Average Convergence/Divergence (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            slowperiod: 26
+            signalperiod: 9
+        Outputs:
+            macd
+            macdsignal
+            macdhist
+    
+    stream_MACDEXT(real, fastperiod=-2147483648, fastmatype=0, slowperiod=-2147483648, slowmatype=0, signalperiod=-2147483648, signalmatype=0)
+        MACDEXT(real[, fastperiod=?, fastmatype=?, slowperiod=?, slowmatype=?, signalperiod=?, signalmatype=?])
+        
+        MACD with controllable MA type (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            fastmatype: 0
+            slowperiod: 26
+            slowmatype: 0
+            signalperiod: 9
+            signalmatype: 0
+        Outputs:
+            macd
+            macdsignal
+            macdhist
+    
+    stream_MACDFIX(real, signalperiod=-2147483648)
+        MACDFIX(real[, signalperiod=?])
+        
+        Moving Average Convergence/Divergence Fix 12/26 (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            signalperiod: 9
+        Outputs:
+            macd
+            macdsignal
+            macdhist
+    
+    stream_MAMA(real, fastlimit=-4e+37, slowlimit=-4e+37)
+        MAMA(real[, fastlimit=?, slowlimit=?])
+        
+        MESA Adaptive Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastlimit: 0.5
+            slowlimit: 0.05
+        Outputs:
+            mama
+            fama
+    
+    stream_MAVP(real, periods, minperiod=-2147483648, maxperiod=-2147483648, matype=0)
+        MAVP(real, periods[, minperiod=?, maxperiod=?, matype=?])
+        
+        Moving average with variable period (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+            periods: (any ndarray)
+        Parameters:
+            minperiod: 2
+            maxperiod: 30
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    stream_MAX(real, timeperiod=-2147483648)
+        MAX(real[, timeperiod=?])
+        
+        Highest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_MAXINDEX(real, timeperiod=-2147483648)
+        MAXINDEX(real[, timeperiod=?])
+        
+        Index of highest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_MEDPRICE(high, low)
+        MEDPRICE(high, low)
+        
+        Median Price (Price Transform)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Outputs:
+            real
+    
+    stream_MFI(high, low, close, volume, timeperiod=-2147483648)
+        MFI(high, low, close, volume[, timeperiod=?])
+        
+        Money Flow Index (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close', 'volume']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_MIDPOINT(real, timeperiod=-2147483648)
+        MIDPOINT(real[, timeperiod=?])
+        
+        MidPoint over period (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_MIDPRICE(high, low, timeperiod=-2147483648)
+        MIDPRICE(high, low[, timeperiod=?])
+        
+        Midpoint Price over period (Overlap Studies)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_MIN(real, timeperiod=-2147483648)
+        MIN(real[, timeperiod=?])
+        
+        Lowest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_MININDEX(real, timeperiod=-2147483648)
+        MININDEX(real[, timeperiod=?])
+        
+        Index of lowest value over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            integer (values are -100, 0 or 100)
+    
+    stream_MINMAX(real, timeperiod=-2147483648)
+        MINMAX(real[, timeperiod=?])
+        
+        Lowest and highest values over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            min
+            max
+    
+    stream_MINMAXINDEX(real, timeperiod=-2147483648)
+        MINMAXINDEX(real[, timeperiod=?])
+        
+        Indexes of lowest and highest values over a specified period (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            minidx
+            maxidx
+    
+    stream_MINUS_DI(high, low, close, timeperiod=-2147483648)
+        MINUS_DI(high, low, close[, timeperiod=?])
+        
+        Minus Directional Indicator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_MINUS_DM(high, low, timeperiod=-2147483648)
+        MINUS_DM(high, low[, timeperiod=?])
+        
+        Minus Directional Movement (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_MOM(real, timeperiod=-2147483648)
+        MOM(real[, timeperiod=?])
+        
+        Momentum (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    stream_MULT(real0, real1)
+        MULT(real0, real1)
+        
+        Vector Arithmetic Mult (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    stream_NATR(high, low, close, timeperiod=-2147483648)
+        NATR(high, low, close[, timeperiod=?])
+        
+        Normalized Average True Range (Volatility Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_OBV(real, volume)
+        OBV(real, volume)
+        
+        On Balance Volume (Volume Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+            prices: ['volume']
+        Outputs:
+            real
+    
+    stream_PLUS_DI(high, low, close, timeperiod=-2147483648)
+        PLUS_DI(high, low, close[, timeperiod=?])
+        
+        Plus Directional Indicator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_PLUS_DM(high, low, timeperiod=-2147483648)
+        PLUS_DM(high, low[, timeperiod=?])
+        
+        Plus Directional Movement (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_PPO(real, fastperiod=-2147483648, slowperiod=-2147483648, matype=0)
+        PPO(real[, fastperiod=?, slowperiod=?, matype=?])
+        
+        Percentage Price Oscillator (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            fastperiod: 12
+            slowperiod: 26
+            matype: 0 (Simple Moving Average)
+        Outputs:
+            real
+    
+    stream_ROC(real, timeperiod=-2147483648)
+        ROC(real[, timeperiod=?])
+        
+        Rate of change : ((real/prevPrice)-1)*100 (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    stream_ROCP(real, timeperiod=-2147483648)
+        ROCP(real[, timeperiod=?])
+        
+        Rate of change Percentage: (real-prevPrice)/prevPrice (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    stream_ROCR(real, timeperiod=-2147483648)
+        ROCR(real[, timeperiod=?])
+        
+        Rate of change ratio: (real/prevPrice) (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    stream_ROCR100(real, timeperiod=-2147483648)
+        ROCR100(real[, timeperiod=?])
+        
+        Rate of change ratio 100 scale: (real/prevPrice)*100 (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 10
+        Outputs:
+            real
+    
+    stream_RSI(real, timeperiod=-2147483648)
+        RSI(real[, timeperiod=?])
+        
+        Relative Strength Index (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_SAR(high, low, acceleration=0.02, maximum=0.2)
+        SAR(high, low[, acceleration=?, maximum=?])
+        
+        Parabolic SAR (Overlap Studies)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            acceleration: 0.02
+            maximum: 0.2
+        Outputs:
+            real
+    
+    stream_SAREXT(high, low, startvalue=-4e+37, offsetonreverse=-4e+37, accelerationinitlong=-4e+37, accelerationlong=-4e+37, accelerationmaxlong=-4e+37, accelerationinitshort=-4e+37, accelerationshort=-4e+37, accelerationmaxshort=-4e+37)
+        SAREXT(high, low[, startvalue=?, offsetonreverse=?, accelerationinitlong=?, accelerationlong=?, accelerationmaxlong=?, accelerationinitshort=?, accelerationshort=?, accelerationmaxshort=?])
+        
+        Parabolic SAR - Extended (Overlap Studies)
+        
+        Inputs:
+            prices: ['high', 'low']
+        Parameters:
+            startvalue: 0.0
+            offsetonreverse: 0.0
+            accelerationinitlong: 0.02
+            accelerationlong: 0.02
+            accelerationmaxlong: 0.2
+            accelerationinitshort: 0.02
+            accelerationshort: 0.02
+            accelerationmaxshort: 0.2
+        Outputs:
+            real
+    
+    stream_SIN(real)
+        SIN(real)
+        
+        Vector Trigonometric Sin (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_SINH(real)
+        SINH(real)
+        
+        Vector Trigonometric Sinh (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_SMA(real, timeperiod=-2147483648)
+        SMA(real[, timeperiod=?])
+        
+        Simple Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_SQRT(real)
+        SQRT(real)
+        
+        Vector Square Root (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_STDDEV(real, timeperiod=-2147483648, nbdev=-4e+37)
+        STDDEV(real[, timeperiod=?, nbdev=?])
+        
+        Standard Deviation (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            nbdev: 1.0
+        Outputs:
+            real
+    
+    stream_STOCH(high, low, close, fastk_period=-2147483648, slowk_period=-2147483648, slowk_matype=0, slowd_period=-2147483648, slowd_matype=0)
+        STOCH(high, low, close[, fastk_period=?, slowk_period=?, slowk_matype=?, slowd_period=?, slowd_matype=?])
+        
+        Stochastic (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            fastk_period: 5
+            slowk_period: 3
+            slowk_matype: 0
+            slowd_period: 3
+            slowd_matype: 0
+        Outputs:
+            slowk
+            slowd
+    
+    stream_STOCHF(high, low, close, fastk_period=-2147483648, fastd_period=-2147483648, fastd_matype=0)
+        STOCHF(high, low, close[, fastk_period=?, fastd_period=?, fastd_matype=?])
+        
+        Stochastic Fast (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            fastk_period: 5
+            fastd_period: 3
+            fastd_matype: 0
+        Outputs:
+            fastk
+            fastd
+    
+    stream_STOCHRSI(real, timeperiod=-2147483648, fastk_period=-2147483648, fastd_period=-2147483648, fastd_matype=0)
+        STOCHRSI(real[, timeperiod=?, fastk_period=?, fastd_period=?, fastd_matype=?])
+        
+        Stochastic Relative Strength Index (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+            fastk_period: 5
+            fastd_period: 3
+            fastd_matype: 0
+        Outputs:
+            fastk
+            fastd
+    
+    stream_SUB(real0, real1)
+        SUB(real0, real1)
+        
+        Vector Arithmetic Subtraction (Math Operators)
+        
+        Inputs:
+            real0: (any ndarray)
+            real1: (any ndarray)
+        Outputs:
+            real
+    
+    stream_SUM(real, timeperiod=-2147483648)
+        SUM(real[, timeperiod=?])
+        
+        Summation (Math Operators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_T3(real, timeperiod=-2147483648, vfactor=-4e+37)
+        T3(real[, timeperiod=?, vfactor=?])
+        
+        Triple Exponential Moving Average (T3) (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            vfactor: 0.7
+        Outputs:
+            real
+    
+    stream_TAN(real)
+        TAN(real)
+        
+        Vector Trigonometric Tan (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_TANH(real)
+        TANH(real)
+        
+        Vector Trigonometric Tanh (Math Transform)
+        
+        Inputs:
+            real: (any ndarray)
+        Outputs:
+            real
+    
+    stream_TEMA(real, timeperiod=-2147483648)
+        TEMA(real[, timeperiod=?])
+        
+        Triple Exponential Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_TRANGE(high, low, close)
+        TRANGE(high, low, close)
+        
+        True Range (Volatility Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Outputs:
+            real
+    
+    stream_TRIMA(real, timeperiod=-2147483648)
+        TRIMA(real[, timeperiod=?])
+        
+        Triangular Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_TRIX(real, timeperiod=-2147483648)
+        TRIX(real[, timeperiod=?])
+        
+        1-day Rate-Of-Change (ROC) of a Triple Smooth EMA (Momentum Indicators)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+    
+    stream_TSF(real, timeperiod=-2147483648)
+        TSF(real[, timeperiod=?])
+        
+        Time Series Forecast (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_TYPPRICE(high, low, close)
+        TYPPRICE(high, low, close)
+        
+        Typical Price (Price Transform)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Outputs:
+            real
+    
+    stream_ULTOSC(high, low, close, timeperiod1=-2147483648, timeperiod2=-2147483648, timeperiod3=-2147483648)
+        ULTOSC(high, low, close[, timeperiod1=?, timeperiod2=?, timeperiod3=?])
+        
+        Ultimate Oscillator (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod1: 7
+            timeperiod2: 14
+            timeperiod3: 28
+        Outputs:
+            real
+    
+    stream_VAR(real, timeperiod=-2147483648, nbdev=-4e+37)
+        VAR(real[, timeperiod=?, nbdev=?])
+        
+        Variance (Statistic Functions)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 5
+            nbdev: 1.0
+        Outputs:
+            real
+    
+    stream_WCLPRICE(high, low, close)
+        WCLPRICE(high, low, close)
+        
+        Weighted Close Price (Price Transform)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Outputs:
+            real
+    
+    stream_WILLR(high, low, close, timeperiod=-2147483648)
+        WILLR(high, low, close[, timeperiod=?])
+        
+        Williams' %R (Momentum Indicators)
+        
+        Inputs:
+            prices: ['high', 'low', 'close']
+        Parameters:
+            timeperiod: 14
+        Outputs:
+            real
+    
+    stream_WMA(real, timeperiod=-2147483648)
+        WMA(real[, timeperiod=?])
+        
+        Weighted Moving Average (Overlap Studies)
+        
+        Inputs:
+            real: (any ndarray)
+        Parameters:
+            timeperiod: 30
+        Outputs:
+            real
+
+DATA
+    __TA_FUNCTION_NAMES__ = ['ACOS', 'AD', 'ADD', 'ADOSC', 'ADX', 'ADXR', ...
+    __all__ = ['get_functions', 'get_function_groups', 'ACOS', 'AD', 'ADD'...
+    __function_groups__ = {'Cycle Indicators': ['HT_DCPERIOD', 'HT_DCPHASE...
+    __ta_version__ = b'0.4.0 (Feb 26 2024 18:37:25)'
+
+VERSION
+    0.4.28
+
+FILE
+    /home/bendevunix/.local/lib/python3.9/site-packages/talib/__init__.py
+
+
