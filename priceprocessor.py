@@ -25,6 +25,7 @@ def ProcessDataWithAllFunctions(data):
     data=setHeikanishi(data)
     data=setCandleStickData(data)
     data=setCandleStickPatterns(data) 
+    #data=calculate_zigzag(data)
     return data
 
 def addIndicators(data,sma=True,fractals=True):
@@ -66,7 +67,7 @@ def setCandleStickData(data):
     data['Bullish'] = data['Close'] > data['Open']
     data['Bearish'] = data['Close'] < data['Open']
 
-    data["Bulllish"].replace({True: 1, False: 0})
+    data["Bullish"].replace({True: 1, False: 0})
     data["Bearish"].replace({True: 1, False: 0})
     return data
 def fiveMinAsFourHour(data):
@@ -99,12 +100,13 @@ def PriceNormlizer(pricedata)->pd.DataFrame:
             Normalizes the prices of the Forex Instrument
             """
             data=pricedata.copy()
+            print(data)
             data.reset_index(inplace=True)
             data=data[["Open","High","Low","Close"]]
             scaler=MinMaxScaler()
             data=pd.DataFrame(scaler.fit_transform(data), columns=data.columns, index=data.index)
             othercolumns=[]
-            print("data:",data)
+            print("Normalized data:\n-----------\n",data)
             for i in pricedata.columns.tolist():
                 
                 if i not in ["Open","High","Low","Close"]:
@@ -199,7 +201,7 @@ def calculate_zigzag(data, threshold=-0.00025):
     
     zigzag_line=zigzag_line.to_frame()
 
-    zigzag_line["Datetime"]=pd.to_datetime(data['Datetime'], unit='s')
+    zigzag_line["Datetime"]=pd.to_datetime(main_data['Datetime'], unit='s')
     zigzag_line.set_index("Datetime",inplace=True)
     zigzag_line = zigzag_line.interpolate(method='time')  # Fill in missing values by interpolation
     
