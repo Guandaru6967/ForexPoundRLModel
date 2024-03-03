@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import talib
 from sklearn.cluster import KMeans
+from smartmoneyconcepts import smc
 
 def prepare_sequences(data,sequence_length=96):
     
@@ -25,6 +26,7 @@ def ProcessDataWithAllFunctions(data):
     data=setHeikanishi(data)
     data=setCandleStickData(data)
     data=setCandleStickPatterns(data) 
+    data=addSMCData(data)
     #data=calculate_zigzag(data)
     return data
 
@@ -210,4 +212,29 @@ def calculate_zigzag(data, threshold=-0.00025):
     print("zigzag:\n ============",data)
     #zigzag_line_df = zigzag_line.reindex(data.index).interpolate(method='time')
     return main_data
-
+def addSMCData(data):
+    def loadcolumnAtoB(a,b):
+        columnlist=a.columns.to_list()
+        maincolumn=columnlist[0]
+        for column in columnlist:
+                column_name=column
+                if(column==maincolumn):
+                        pass
+                else:
+                        column_name=maincolumn+"_"+column
+                b[column_name]=a[column]
+                
+        return b
+    ohlc_data=data[["Open","High","Low","Close"]]
+    fairvaluedata=smc.fvg(ohlc_data)
+    data=loadcolumnAtoB(fairvaluedata,data)
+    orderblock=smc.ob(ohlc_data)
+    data=loadcolumnAtoB(orderblock,data)
+    highs_lows=smc.highs_lows(ohlc_data)
+    highs_lows["Levels"]=highs_lows["Levels"].fillna(-1)
+    data=loadcolumnAtoB(highs_lows,data)
+    liquidity=smc.liquidity(ohlc_data)
+    data=loadcolumnAtoB(liquidity,data)
+    bos_choch=smc.bos_choch(ohlc_data,close_break=True)
+    data=loadcolumnAtoB(bos_choch,data)
+    return data

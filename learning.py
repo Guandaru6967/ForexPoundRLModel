@@ -72,6 +72,10 @@ class StopTrainingCallback(BaseCallback):
 
         return True 
 class TradingRLClass:
+
+    def createEnv(self,x):
+        env=gym.make("forex-v0",df=self.training_data,frame_bound=self.frame_bound,window_size=self.window_size)
+        env.seed(x)
     def __init__(self,**kwargs):
         self.modelName="gbpSuperAI"
         self.frame_bound=(48,4000)
@@ -83,7 +87,7 @@ class TradingRLClass:
         self.environment=gym.make("forex-v0",df=self.training_data,frame_bound=self.frame_bound,window_size=self.window_size)
         self.environment_maker=lambda : self.environment
         state=self.environment.reset()
-        self.dummyEnvironment=DummyVecEnv([self.environment_maker])
+        self.dummyEnvironment=SubprocVecEnv([self.environment_maker ] )
     
         self.model=A2C("MlpPolicy",self.dummyEnvironment,verbose=1)
         print(self.model.get_parameters())
@@ -108,7 +112,7 @@ class TradingRLClass:
                 print("info",info)
                 break
     
-    def trainRL(self,timesteps=200000):
+    def trainRL(self,timesteps=100000):
         self.model.learn(total_timesteps=timesteps)
         self.saveModel()
     def loadModel(self):

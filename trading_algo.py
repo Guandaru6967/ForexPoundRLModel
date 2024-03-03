@@ -331,15 +331,15 @@ def make_env( rank, seed=0):
     return _init
 
 # Create vectorized environment with seed
-num_envs = 4
-env_ids = ['CartPole-v1'] * num_envs
-vec_env = DummyVecEnv([make_env(i, seed=42) for i  in enumerate(env_ids)])
 
-quit()
-env=GBPForexEnvironment(data=pd.read_csv(os.path.join("data","GBPUSD_DATA")))
-environ_maker=lambda x:env
-env.reset()
-env.step(env.action_space.sample())
-env.step(env.action_space.sample())
-#env.step()
-check_env(env)                    
+gbpusd=os.path.join("data","GBPUSD_DATA")
+testdata=os.path.join("data","SINE_FXENV_TESTDATA.csv")
+env=GBPForexEnvironment(data=pd.read_csv(testdata),account_balance=100000)
+#for i in range(1000):
+waitaction={"Id":0,"LotSize":15.00,"Option":0,"Entry":0.005,"TakeProfit":1.325,"StopLoss":1.445}
+firstaction={"Id":0,"LotSize":0.15,"Option":0,"Entry":0.005,"TakeProfit":1.325,"StopLoss":1.445}
+env.step(firstaction)
+for i in range(30):
+        waitaction={"Id":0,"LotSize":0.15,"Option":3,"Entry":0.005,"TakeProfit":1.325,"StopLoss":1.445}
+        env.step(waitaction)
+        env.render()
