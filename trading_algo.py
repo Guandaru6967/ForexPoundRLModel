@@ -1,4 +1,6 @@
 from matplotlib.pylab import Generator
+import matplotlib.pyplot as plt
+import matplotlib
 from  stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.vec_env import DummyVecEnv,VecEnv,SubprocVecEnv
@@ -13,7 +15,6 @@ import gymnasium as gym
 import uuid
 import pandas as pd
 import os
-
 from priceprocessor import PriceNormlizer
 
 class ObservationSpace(gym.Space):
@@ -44,7 +45,7 @@ class GBPForexEnvironment(gym.Env):
                 
                 self.current_price=0
                 
-                self.currencies=PriceNormlizer(data)
+                self.currencies=data#PriceNormlizer(data).round(6)
                 self.features_fields=[i for i in self.currencies.columns.to_list() if i!="Datetime"]
                 self.max_price=max([self.max_price,self.currencies["High"].max()])
                 self.min_price=min([self.min_price, self.currencies["Low"].min()])
@@ -68,6 +69,8 @@ class GBPForexEnvironment(gym.Env):
                 self.trade_index=0
                 self.average_profit_pips=30
                 self.average_loss_pips=20
+                self.track_data={"profits":[],"losses":[],"reward":[],"steps":[],"trades":[]}
+        
                 #Trade Execution Spaces
                 self.lot_size_space=gym.spaces.Box(low=0.01,high=self.lot_size_max)
                 self.stop_loss_space=gym.spaces.Box(low=float(self.min_price),high=float(self.max_price))
@@ -102,14 +105,13 @@ class GBPForexEnvironment(gym.Env):
                                                                                        "equity":self.equity_space,
                                                                                        "margin":self.margin_space,
                                                                                        "spread":self.spread_space,
-                                                                                       
                                                                                        })
                 print(isinstance(self.action_space,gym.spaces.Dict))
                 
 
                 self.obs_sample=self.observation_space.sample()
                 print("Observation:",self.obs_sample)
-        def calculate_pips(self,price1, price2):
+        def calculate_pips(self,price1, price2,precision=5):
                 """
                 Calculate the number of pips between two prices.
 
@@ -121,13 +123,14 @@ class GBPForexEnvironment(gym.Env):
                 Returns:
                 - The number of pips.
                 """
-                pip_precision=self.calculate_pip_precision(price2)
+                pip_precision=precision
                 smallest_price_movement = 10 ** -pip_precision
                 price_difference = price2 - price1
                 pips = (price_difference / smallest_price_movement)
+                print("Prices 1 and 2:",price1, price2)
                 print("Pips:",pips)
                 print("pip_precision:",pip_precision)
-                return round(pips, pip_precision)
+                return abs(round(pips, pip_precision))
         def calculate_pip_precision(self,number):
                 """
                 Calculate pip precision from a given number.
@@ -212,16 +215,19 @@ class GBPForexEnvironment(gym.Env):
                 TakeProfit=action["TakeProfit"][0]
                 StopLoss=action["StopLoss"][0]
                 trades_to_close=[]
-                
+                outcome=0
+                reward=0
                 #Actions Evalution
                 for trade in self.open_trades:
                         entry_price=trade["Entry"]
-                        print("trade:",trade)
                         current_high=self.currencies.iloc[self.current_price]["High"]
                         current_low=self.currencies.iloc[self.current_price]["Low"]
                         print("Trade Entry:",trade["Entry"],current_high)
-                        buy_trade_result=self.calculate_pips(current_high,trade["Entry"])
-                        sell_trade_result=self.calculate_pips(entry_price,current_low)
+                        buy_trade_result=self.calculate_pips(trade["Entry"],current_high)
+                        sell_trade_result=self.calculate_pips(current_low,entry_price)
+
+                        buy_trade_stop=self.calculate_pips(current_low,trade["Entry"])
+                        sell_trade_stop=self.calculate_pips(trade["Entry"],current_high)
 
                         trade_lot_size=trade["LotSize"]
 
@@ -230,20 +236,26 @@ class GBPForexEnvironment(gym.Env):
                         # if trade is a buy
                         if trade["Option"]==0:
                                 #Hit buy stop loss
-                                if trade["StopLoss"]>=buy_trade_result:
+                                if trade["StopLoss"]<=buy_trade_stop:
                                         reward=-trade["StopLoss"]
                                         trades_to_close.append(trade)
                                         outcome-=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
+                                        print(" buy trade stop is given by:", current_low,trade["Entry"])
+                                        print("Stop loss diff: ",trade["StopLoss"],buy_trade_stop)
+                                        print(f"Buy trade trade {trade['Id']} has hit stop loss at {current_low} from entry {trade['Entry']}")
 
                                 #Hit sell take profit
-                                if trade["TakeProfit"]>=buy_trade_result:
+                                if trade["TakeProfit"]<=buy_trade_result:
                                         reward+=trade["TakeProfit"]
                                         trades_to_close.append(trade)
                                         outcome+=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
-                                
+                                        print(" buy trade result is given by:", current_high,trade["Entry"])
+                                        print("Take profit diff: ",trade["TakeProfit"],buy_trade_result)
+                                        print(f"Buy trade trade {trade['Id']} has hit take profit at {current_high} from entry {trade['Entry']}")
+                               
                         #if trade is a sell
                         elif  trade["Option"]==1:
-                                if trade["StopLoss"]<=sell_trade_result:
+                                if trade["StopLoss"]>=sell_trade_result:
                                         #if trade is in break even mode or in profit mode
                                         if trade["StopLoss"]<=trade["Entry"]:
                                                 reward+=trade["StopLoss"]
@@ -251,7 +263,7 @@ class GBPForexEnvironment(gym.Env):
                                                 reward=-trade["StopLoss"]
                                         trades_to_close.append(trade)
                                         outcome-=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
-                                if trade["TakeProfit"]<=sell_trade_result:
+                                if trade["TakeProfit"]>=sell_trade_result:
                                         reward=+trade["TakeProfit"]
                                         trades_to_close.append(trade)
                                         outcome+=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
@@ -262,29 +274,29 @@ class GBPForexEnvironment(gym.Env):
                         #if in profit reward the pips
 
                         #if in loss remove the pips:
+                print(len(trades_to_close),trades_to_close,self.open_trades)
                 for i in trades_to_close:
                         self.open_trades.remove(i)   
                 #Action Exectution
-                if action["Option"]==0 or action["Option"]==1:
-                        self.trade_index+=1
+               
                 if action["Option"]==1:
-                        entry=self.currencies["Low"][self.current_price]
+                        entry=self.currencies.iloc[self.current_price]["Low"]
                         print(action["TakeProfit"])
                         print(entry)
                         action["Entry"]=entry
-                        action["StopLoss"]=np.array([self.calculate_pips(entry,StopLoss )])
+                        action["StopLoss"]=np.array([self.calculate_pips(entry,StopLoss)])
                         action["TakeProfit"]=np.array([self.calculate_pips(TakeProfit,entry)])
                         self.open_trades.append(action)
-                        print("Made a Sell Trade:",action)
+                        self.track_data["trades"].append(action)
+                        print("Made a Sell Trade:" ,action)
                 if action["Option"]==0:
-                        entry=self.currencies["High"][self.current_price]
+                        entry=self.currencies.iloc[self.current_price]["High"]
                         action["Entry"]=entry
-                        print(action["TakeProfit"])
-                        print(entry)
+                        self.track_data["trades"].append(action)
                         action["StopLoss"]=np.array([self.calculate_pips(StopLoss ,entry)])
-                        action["TakeProfit"]=np.array([self.calculate_pips(TakeProfit,entry)])
+                        action["TakeProfit"]=np.array([self.calculate_pips(entry,TakeProfit)])
                         self.open_trades.append(action)
-                        print("Made a Buy Trade:",action)
+                        print("Made a Buy Trade",action)
                 if action["Option"]==2:
                         for trade in self.open_trades:
                                 if trade["Id"]==action["Id"]:
@@ -307,11 +319,22 @@ class GBPForexEnvironment(gym.Env):
                                 done=True 
                 if self.currencies.shape[0]-1==self.current_price-self.temporal_window:
                         done=True
-                outcome=0
-                reward=0
+              
+                if action["Option"]==0 or action["Option"]==1:
+                        self.trade_index+=1
+
+                #Update render data
+                if outcome>0:
+                        self.track_data["profits"].append(outcome)
+                        self.track_data["losses"].append(0)
+                if outcome<0:
+                        self.track_data["profits"].append(0)
+                        self.track_data["losses"].append(outcome)
+
+                self.track_data["reward"].append(reward)
+                self.track_data["steps"].append(len(self.track_data["steps"]))
+
                 
-                
-                #state=np.array([float(self.account_balance),float(self.account_equity),float(self.margin)])
                 state={"temporal_window_state":self.currencies.iloc[self.current_price:self.current_price+self.temporal_window][self.features_fields].to_numpy(),
                                                                                        "balance":np.array([float(self.account_balance)]),
                                                                                        "equity":np.array([float(self.account_equity)]),
@@ -322,6 +345,24 @@ class GBPForexEnvironment(gym.Env):
                 info={"active-trades":len(self.open_trades),"outcomes":outcome,"closed-trades":len(trades_to_close)}
                 self.current_price+=1
                 return state,reward ,done,truncated,info
+        def render(self)->None:
+                fig, axs = plt.subplots(3)
+                x=self.track_data["steps"]
+                y1=self.track_data["profits"]
+                y2=self.track_data["profits"]
+                y3=self.track_data["profits"]
+                # Plot each array in a separate subplot
+                axs[0].plot(x, y1, color='red', marker='o', linestyle='-')
+                axs[0].set_title('Profits')
+
+                axs[1].plot(x, y2, color='blue', marker='x', linestyle='--')
+                axs[1].set_title('Losses')
+
+                axs[2].plot(x, y3, color='green', marker='s', linestyle='-.')
+                axs[2].set_title('Rewards')
+
+                
+
 
 def make_env( rank, seed=0):
     def _init():
@@ -332,14 +373,19 @@ def make_env( rank, seed=0):
 
 # Create vectorized environment with seed
 
+print(120)
 gbpusd=os.path.join("data","GBPUSD_DATA")
 testdata=os.path.join("data","SINE_FXENV_TESTDATA.csv")
-env=GBPForexEnvironment(data=pd.read_csv(testdata),account_balance=100000)
+testdata=pd.read_csv(testdata).round(5)
+print(testdata)
+env=GBPForexEnvironment(data=testdata,account_balance=100000)
+
 #for i in range(1000):
-waitaction={"Id":0,"LotSize":15.00,"Option":0,"Entry":0.005,"TakeProfit":1.325,"StopLoss":1.445}
-firstaction={"Id":0,"LotSize":0.15,"Option":0,"Entry":0.005,"TakeProfit":1.325,"StopLoss":1.445}
+waitaction={"Id":2,"LotSize":np.array([15.00]),"Option":3,"Entry":np.array([0.005]),"TakeProfit":np.array([1.325]),"StopLoss":np.array([1.445])}
+firstaction={"Id":0,"LotSize":np.array([0.15]),"Option":0,"Entry":np.array([0.005]),"TakeProfit":np.array([1.325]),"StopLoss":np.array([1.245])}
 env.step(firstaction)
+print(100)
 for i in range(30):
-        waitaction={"Id":0,"LotSize":0.15,"Option":3,"Entry":0.005,"TakeProfit":1.325,"StopLoss":1.445}
         env.step(waitaction)
-        env.render()
+        print(20)
+        #env.render()

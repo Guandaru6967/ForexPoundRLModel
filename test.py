@@ -11,13 +11,20 @@ from tapy.indicators import Indicators
 
 import multiprocessing
 import matplotlib
-
+import gymnasium as gym
 from PIL import Image as PILImage
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import numpy as np
-import wx
-matplotlib.use("WX")
+import datetime
+from priceprocessor import addMinutesofDay
+from kivy.uix.floatlayout import*
+from kivy.app import App
+
+class ApplicationKv(App):
+        def build(self):
+                return FloatLayout()
+ApplicationKv().run()
 def generateSineTestData():
         start_price = 1.30000  # Starting price
         price_range = (1.10000, 1.50000)  # Price range
@@ -85,14 +92,23 @@ def generateSineTestData():
         #print(df)
         #df=df[['Open' ,'High', 'Low', 'Close']]
         return df
-# df=pd.read_csv(os.path.join("data","SINE_FXENV_TESTDATA.csv"))
+df=pd.read_csv(os.path.join("data","SINE_FXENV_TESTDATA.csv"))
+data=addMinutesofDay(df)["TimeofDay"].to_numpy()[24:100]
+df=generateSineTestData()
+print(data)
 # df["Datetime"]=df["Unnamed: 0"]
 # df=df.drop("Unnamed: 0",axis=1)
 # df.set_index("Datetime",drop=True,inplace=True)
 # print(df)
-df=generateSineTestData()
-#matplotlib.use("GTK3Agg")
-mplf.plot(df[912:(912*2)], type='candle', style='charles', title='OHLC Chart', ylabel='Price')
+#array=gym.spaces.Sequence(gym.spaces.Dict({"Id":gym.spaces.Discrete(4),"Entry":gym.spaces.Box(high=1.5,low=1.25,dtype=np.float64)}))
+
+
+# print(datatest)
+# print(array.contains(datatest[0]))
+# print(isinstance(datatest,tuple))
+# df=generateSineTestData()
+# #matplotlib.use("GTK3Agg")
+mplf.plot(df[0:(912*2)], type='candle', style='charles', title='OHLC Chart', ylabel='Price')
 mplf.show()
 # dict of functions by group
 # for group, names in talib.get_function_groups():

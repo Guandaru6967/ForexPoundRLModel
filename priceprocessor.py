@@ -27,7 +27,7 @@ def ProcessDataWithAllFunctions(data):
     data=setCandleStickData(data)
     data=setCandleStickPatterns(data) 
     data=addSMCData(data)
-    #data=calculate_zigzag(data)
+    data=addMinutesofDay(data)
     return data
 
 def addIndicators(data,sma=True,fractals=True):
@@ -238,3 +238,24 @@ def addSMCData(data):
     bos_choch=smc.bos_choch(ohlc_data,close_break=True)
     data=loadcolumnAtoB(bos_choch,data)
     return data
+def addMinutesofDay(data:pd.DataFrame):
+    import datetime
+    def readtime(time):
+        if type(time) is int:
+             ticktime=datetime.datetime.fromtimestamp(time)
+        else:
+            ticktime=datetime.datetime.fromisoformat(time)
+        
+        minutes=ticktime.hour*60+ticktime.minute
+    
+        return minutes
+    if("DateTime" in data.columns.to_list()):
+        data["TimeofDay"]=data['DateTime'].apply(readtime)
+    else:
+        datacopy=data.copy()
+        datacopy.reset_index(drop=False)
+        print(datacopy)
+        data["TimeofDay"]=datacopy['Unnamed: 0'].apply(readtime)
+        del datacopy
+    return data
+     
