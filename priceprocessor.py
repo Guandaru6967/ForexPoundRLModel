@@ -255,7 +255,7 @@ def addMinutesofDay(data:pd.DataFrame):
         datacopy=data.copy()
         datacopy.reset_index(drop=False)
         print(datacopy)
-        data["TimeofDay"]=datacopy['Unnamed: 0'].apply(readtime)
+        data["TimeofDay"]=datacopy['Datetime'].apply(readtime)
         del datacopy
     return data
      

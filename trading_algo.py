@@ -67,8 +67,8 @@ class GBPForexEnvironment(gym.Env):
                 self.currency_spread=currency_spread
                 self.max_trades=10
                 self.trade_index=0
-                self.average_profit_pips=30
-                self.average_loss_pips=20
+                self.average_profit_pips=3000
+                self.average_loss_pips=2000
                 self.track_data={"profits":[],"losses":[],"reward":[],"steps":[],"trades":[]}
         
                 #Trade Execution Spaces
@@ -130,7 +130,7 @@ class GBPForexEnvironment(gym.Env):
                 print("Prices 1 and 2:",price1, price2)
                 print("Pips:",pips)
                 print("pip_precision:",pip_precision)
-                return abs(round(pips, pip_precision))
+                return round(pips, pip_precision)
         def calculate_pip_precision(self,number):
                 """
                 Calculate pip precision from a given number.
@@ -172,7 +172,6 @@ class GBPForexEnvironment(gym.Env):
                 print(self.currencies.iloc[self.current_price:self.current_price+self.temporal_window][self.features_fields].to_numpy().shape)
                 self.trade_index=0
                 self.current_price=0
-                np.dtype
                 wait_option={'Entry':self.currencies.iloc[self.current_price]["High"], 'Id': self.trade_index, 'LotSize': 0.0, 'Option': 3, 'StopLoss': self.max_price, 'TakeProfit':self.max_price}
                
                 #return self.obs_sample,{"active-trades":len(self.open_trades),"outcomes":0,"closed-trades":0}
@@ -217,57 +216,66 @@ class GBPForexEnvironment(gym.Env):
                 trades_to_close=[]
                 outcome=0
                 reward=0
+                
                 #Actions Evalution
                 for trade in self.open_trades:
                         entry_price=trade["Entry"]
                         current_high=self.currencies.iloc[self.current_price]["High"]
                         current_low=self.currencies.iloc[self.current_price]["Low"]
-                        print("Trade Entry:",trade["Entry"],current_high)
-                        buy_trade_result=self.calculate_pips(trade["Entry"],current_high)
+                        print("Trade Entry:",entry_price,current_high)
+                        buy_trade_result=self.calculate_pips(entry_price,current_high)
                         sell_trade_result=self.calculate_pips(current_low,entry_price)
 
-                        buy_trade_stop=self.calculate_pips(current_low,trade["Entry"])
-                        sell_trade_stop=self.calculate_pips(trade["Entry"],current_high)
+                        buy_trade_stop=self.calculate_pips(current_low,entry_price)
+                        sell_trade_stop=self.calculate_pips(entry_price,current_high)
 
                         trade_lot_size=trade["LotSize"]
 
                         outcome=0 # profit or loss
+                        trade_stop_loss=trade["StopLoss"][0]
+                        trade_take_profit=trade["TakeProfit"][0]
 
                         # if trade is a buy
                         if trade["Option"]==0:
                                 #Hit buy stop loss
-                                if trade["StopLoss"]<=buy_trade_stop:
-                                        reward=-trade["StopLoss"]
-                                        trades_to_close.append(trade)
-                                        outcome-=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
-                                        print(" buy trade stop is given by:", current_low,trade["Entry"])
-                                        print("Stop loss diff: ",trade["StopLoss"],buy_trade_stop)
-                                        print(f"Buy trade trade {trade['Id']} has hit stop loss at {current_low} from entry {trade['Entry']}")
+                                if abs(trade_stop_loss)<=abs(buy_trade_stop):
+                                        if entry_price<current_low:
+                                                reward=-trade_stop_loss
+                                                trades_to_close.append(trade)
+                                                outcome-=reward*trade_lot_size
+                                                print(" buy trade stop is given by:", current_low,entry_price)
+                                                print("Stop loss diff: ",trade_stop_loss,buy_trade_stop)
+                                                print(f"Buy trade trade {trade['Id']} has hit stop loss at {current_low} from entry {trade['Entry']}")
 
                                 #Hit sell take profit
-                                if trade["TakeProfit"]<=buy_trade_result:
-                                        reward+=trade["TakeProfit"]
+                                if trade_take_profit<=buy_trade_result:
+                                        reward+=trade_take_profit
                                         trades_to_close.append(trade)
-                                        outcome+=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
-                                        print(" buy trade result is given by:", current_high,trade["Entry"])
-                                        print("Take profit diff: ",trade["TakeProfit"],buy_trade_result)
+                                        outcome+=reward*trade_lot_size
+                                        print(" buy trade result is given by:", current_high,entry_price)
+                                        print("Take profit diff: ",trade_take_profit,buy_trade_result)
                                         print(f"Buy trade trade {trade['Id']} has hit take profit at {current_high} from entry {trade['Entry']}")
                                
                         #if trade is a sell
                         elif  trade["Option"]==1:
-                                if trade["StopLoss"]>=sell_trade_result:
-                                        #if trade is in break even mode or in profit mode
-                                        if trade["StopLoss"]<=trade["Entry"]:
-                                                reward+=trade["StopLoss"]
-                                        else:
-                                                reward=-trade["StopLoss"]
+                                if abs(trade_stop_loss)<=abs(sell_trade_stop):
+                                        if sell_trade_stop>0:
+                                                #if trade is in break even mode or in profit mode
+                                                reward=-trade_stop_loss
+                                                trades_to_close.append(trade)
+                                                outcome-=reward*trade_lot_size
+                                                print(" sell trade stop is given by:", current_low,entry_price)
+                                                print("Stop loss diff: ",trade_stop_loss,sell_trade_stop)
+                                                print(f"Sell trade  {trade['Id']} has hit stop loss at {current_low} from entry {trade['Entry']}")
+
+                                if trade_take_profit<=sell_trade_result:
+                                        reward=+trade_take_profit
                                         trades_to_close.append(trade)
-                                        outcome-=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
-                                if trade["TakeProfit"]>=sell_trade_result:
-                                        reward=+trade["TakeProfit"]
-                                        trades_to_close.append(trade)
-                                        outcome+=reward*trade_lot_size*self.calculate_pip_precision(entry_price)
-                                
+                                        outcome+=reward*trade_lot_size
+                                        print(" Sell trade result is given by:", current_low,entry_price)
+                                        print("Take profit diff: ",trade_take_profit,sell_trade_result)
+                                        print(f"Sell trade  {trade['Id']} has hit take profit at {current_low} from entry {trade['Entry']}")
+                               
                         self.account_balance=self.account_balance+outcome
                         
                                 
@@ -284,7 +292,9 @@ class GBPForexEnvironment(gym.Env):
                         print(action["TakeProfit"])
                         print(entry)
                         action["Entry"]=entry
-                        action["StopLoss"]=np.array([self.calculate_pips(entry,StopLoss)])
+                        stoppips=self.calculate_pips(entry,StopLoss)
+                        reward-=(self.average_loss_pips-stoppips)
+                        action["StopLoss"]=np.array([stoppips])
                         action["TakeProfit"]=np.array([self.calculate_pips(TakeProfit,entry)])
                         self.open_trades.append(action)
                         self.track_data["trades"].append(action)
@@ -293,7 +303,9 @@ class GBPForexEnvironment(gym.Env):
                         entry=self.currencies.iloc[self.current_price]["High"]
                         action["Entry"]=entry
                         self.track_data["trades"].append(action)
-                        action["StopLoss"]=np.array([self.calculate_pips(StopLoss ,entry)])
+                        stoppips=self.calculate_pips(StopLoss ,entry)
+                        reward-=(self.average_loss_pips-stoppips)
+                        action["StopLoss"]=np.array([stoppips])
                         action["TakeProfit"]=np.array([self.calculate_pips(entry,TakeProfit)])
                         self.open_trades.append(action)
                         print("Made a Buy Trade",action)
@@ -302,13 +314,14 @@ class GBPForexEnvironment(gym.Env):
                                 if trade["Id"]==action["Id"]:
                                                 #if its a buy trade
                                                 if trade["Option"]==0:
-                                                        trade["StopLoss"]=self.calculate_pips(StopLoss ,trade["Entry"])
+                                                        trade["StopLoss"]=self.calculate_pips(StopLoss ,entry_price)
                                                         trade["TakeProfit"]=self.calculate_pips(TakeProfit,trade["Entry"])
                                                 elif trade["Option"]==1: 
                                                         #trade["StopLoss"]=StopLoss
                                                         trade["TakeProfit"]=self.calculate_pips(trade["Entry"],TakeProfit)
                                                         trade["StopLoss"]=self.calculate_pips(StopLoss,trade["Entry"])
                 if action["Option"]==3:
+                        reward+=1
                         pass
                                         
                 #Add price to the environment
@@ -376,16 +389,22 @@ def make_env( rank, seed=0):
 print(120)
 gbpusd=os.path.join("data","GBPUSD_DATA")
 testdata=os.path.join("data","SINE_FXENV_TESTDATA.csv")
+
 testdata=pd.read_csv(testdata).round(5)
-print(testdata)
+gbpusd=pd.read_csv(gbpusd).round(5)
+
 env=GBPForexEnvironment(data=testdata,account_balance=100000)
+#print(env.currencies.iloc[2000])
 
 #for i in range(1000):
-waitaction={"Id":2,"LotSize":np.array([15.00]),"Option":3,"Entry":np.array([0.005]),"TakeProfit":np.array([1.325]),"StopLoss":np.array([1.445])}
-firstaction={"Id":0,"LotSize":np.array([0.15]),"Option":0,"Entry":np.array([0.005]),"TakeProfit":np.array([1.325]),"StopLoss":np.array([1.245])}
+waitaction={"Id":2,"LotSize":np.array([15.00]),"Option":3,"Entry":np.array([1.30000]),"TakeProfit":np.array([1.30500]),"StopLoss":np.array([1.29000])}
+firstaction={"Id":0,"LotSize":np.array([0.15]),"Option":0,"Entry":np.array([1.30000]),"TakeProfit":np.array([1.3500]),"StopLoss":np.array([1.33000])}
+
+firstaction={"Id":0,"LotSize":np.array([0.15]),"Option":1,"Entry":np.array([0.02]),"TakeProfit":np.array([1.33500]),"StopLoss":np.array([1.3500])}
 env.step(firstaction)
 print(100)
 for i in range(30):
         env.step(waitaction)
         print(20)
         #env.render()
+check_env(env)

@@ -21,10 +21,7 @@ from priceprocessor import addMinutesofDay
 from kivy.uix.floatlayout import*
 from kivy.app import App
 
-class ApplicationKv(App):
-        def build(self):
-                return FloatLayout()
-ApplicationKv().run()
+
 def generateSineTestData():
         start_price = 1.30000  # Starting price
         price_range = (1.10000, 1.50000)  # Price range
@@ -108,7 +105,7 @@ print(data)
 # print(isinstance(datatest,tuple))
 # df=generateSineTestData()
 # #matplotlib.use("GTK3Agg")
-mplf.plot(df[0:(912*2)], type='candle', style='charles', title='OHLC Chart', ylabel='Price')
+mplf.plot(df[2000:], type='candle', style='charles', title='OHLC Chart', ylabel='Price')
 mplf.show()
 # dict of functions by group
 # for group, names in talib.get_function_groups():
