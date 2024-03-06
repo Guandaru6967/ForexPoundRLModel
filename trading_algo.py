@@ -18,12 +18,91 @@ import os
 from priceprocessor import PriceNormlizer
 from stable_baselines3.a2c import A2C
 from stable_baselines3.ppo import PPO
+import torch
+import pytorch_lightning as pl
+import torch.nn as nn
+import torch.functional as F
+from torch.distributions import Categorical
+m=Categorical( torch.tensor([0.2,0.2,.2,2e-1,2.5,0.3]))
+
 class ObservationSpace(gym.Space):
         def __init__(self, *args,**kwargs):
                 super().__init__(*args,**kwargs)
                 print(kwargs)
                 print(args)
+class RewardThresholdCallback(pl.Callback):
+    def __init__(self, reward_threshold):
+        super().__init__()
+        self.reward_threshold = reward_threshold
 
+    def on_epoch_end(self, trainer, pl_module):
+        if pl_module.current_reward >= self.reward_threshold:
+            print(f"Training stopped as reward threshold ({self.reward_threshold}) reached.")
+            trainer.should_stop = True
+class ForexPolicyLSTMNeuralNetwork(nn.Module):
+        def __init__(self,input_size,action_size,*args,hidden_size=912,**kwargs):
+                super().__init__(*args,**kwargs)
+                self.lstmLayer=nn.LSTM(input_size=input_size,hidden_size=hidden_size)
+                
+                self.fullyconnectedLayer=nn.Linear(hidden_size,action_size)
+
+        def forward(self, x):
+                # Forward pass through LSTM layer
+                lstmValue, _ = self.lstmLayer(x)
+                # Apply ReLU activation function
+                activationValue =nn.ReLU()(lstmValue)
+                # Forward pass through fully connected layer
+                y = self.fullyconnectedLayer(activationValue)
+                return y
+class ForexPPOAgent(pl.LightningModule):
+        def __init__(self,input_size,action_size,gamma=99e-2,learning_rate=1e-3,clip_ratio=2e-1,value_coefficient=5e-1,entropy_coefficient=1e-2):
+                super().__init__()
+                
+                self.policy=ForexPolicyLSTMNeuralNetwork(input_size=input_size,action_size=action_size)
+                self.gamma=gamma
+                self.learning_rate=learning_rate
+                self.clip_ratio=clip_ratio
+                self.value_coefficient=value_coefficient
+                self.entropy_coefficient=entropy_coefficient
+        def training_step(self, *args: plt.Any, **kwargs: plt.Any):
+                super().training_step(*args, **kwargs)
+                print("Args:\n",args)
+                batch,batchidx=args
+                print("batch:\n",batch,"batchidx:\n",batchidx)
+                # Unpack batch
+                states, actions, rewards, next_states, dones = batch
+                # Forward pass through policy network
+                logits = self.policy(states)
+                # Initialize Categorical distribution
+                dist = Categorical(logits=logits)
+                # Calculate log probabilities of actions
+                log_probs = dist.log_prob(actions)
+                # Forward pass through policy network for value estimation
+                values = self.policy(states)
+                # Forward pass through policy network for value estimation for next states
+                next_values = self.policy(next_states)
+                # Compute advantages and returns
+                returns, advantages = self._compute_advantages(rewards, values, next_values, dones)
+
+                # Compute surrogate objective function for policy loss
+                ratios = torch.exp(log_probs - log_probs.detach())
+                surr1 = ratios * advantages
+                surr2 = torch.clamp(ratios, 1 - self.clip_ratio, 1 + self.clip_ratio) * advantages
+                policy_loss = -torch.min(surr1, surr2).mean()
+
+                # Compute value function loss
+                value_loss = F.smooth_l1_loss(values, returns.detach())
+
+                # Compute entropy bonus
+                entropy = dist.entropy().mean()
+
+                # Compute total loss
+                loss = policy_loss + self.vf_coef * value_loss - self.entropy_coef * entropy
+
+                return loss
+class PPOAgent(pl.LightningModule):
+    def __init__(self, input_size, hidden_size, num_actions, lr=1e-3, gamma=0.99, clip_ratio=0.2, vf_coef=0.5, entropy_coef=0.01):
+        super(PPOAgent, self).__init__()
 class GBPForexEnvironment(gym.Env):
         def __init__(self,data:dict,*args,temporal_window=912,account_balance=100.00,risk_size=0.3,currency_spread=0.0,**kwargs) -> None:
                 """
@@ -110,6 +189,7 @@ class GBPForexEnvironment(gym.Env):
                 low = np.array([self.trade_entry_space.low[0], 0,self.lot_size_space.low[0], 0, self.stop_loss_space.low[0],self.take_profit_space.low[0]])
                 high = np.array([self.trade_entry_space.high[0], 1000000, self.lot_size_space.high[0], 4, self.stop_loss_space.high[0],self.take_profit_space.high[0]])
                 self.trades_space=gym.spaces.Sequence(self.trade_entry_space)#(self.action_space)
+                
                 self.observation_space=gym.spaces.Dict({"temporal_window_state":gym.spaces.Box(low=self.min_price,
                                                                                        high=self.max_price,
                                                                                        shape=(self.temporal_window,(len(data.columns.to_list())-1)),dtype=np.float64) ,
@@ -120,13 +200,8 @@ class GBPForexEnvironment(gym.Env):
                                                                                        })
                 self.trade_param_space=gym.spaces.Box(high=8000.00,low=10,shape=(2,))
                 print(self.trade_param_space.env)
-                self.action_space=gym.spaces.Tuple(
-                                gym.spaces.Discrete(self.max_trades),
-                                self.lot_size_space,
-                                self.trade_option_space,
-                                self.trade_entry_space,
-                                self.take_profit_space,
-                                self.stop_loss_space)
+                self.action_space = gym.spaces.Box(low=np.array([0, 10, 10, 0.01]), high=np.array([2, 1000, 1000, self.lot_size_max]))
+
                 print("sample:",self.action_space.sample())
                 print(isinstance(self.action_space,gym.spaces.Tuple))
                 
@@ -416,7 +491,22 @@ class GBPForexEnvironment(gym.Env):
                 plt.show()
 
 
-                
+class GBPTrainer:
+        def __init__(self):
+                gbpusd=os.path.join("data","GBPUSD_DATA")
+                testdata=os.path.join("data","SINE_FXENV_TESTDATA.csv")
+
+                testdata=pd.read_csv(testdata).round(5)
+                gbpusd=pd.read_csv(gbpusd).round(5)
+                reward_threshold=1000
+                env=GBPForexEnvironment(data=testdata,account_balance=100000)
+                agent=ForexPPOAgent()
+                reward_threshold_callback = RewardThresholdCallback(reward_threshold)
+
+                # Train the agent using a Lightning Trainer with the callback
+                trainer = pl.Trainer(callbacks=[reward_threshold_callback])
+                trainer.fit(agent, env)
+
 
 
 def make_env( rank, seed=0):
@@ -461,8 +551,12 @@ def algotest():
                 return env
         num_envs=1
         subprocess_env = DummyVecEnv([envProcess for i in range(num_envs)])
-        model=A2C("MlpPolicy",env=subprocess_env,verbose=1)
-        model.learn(total_timesteps=100000,log_interval=500)
-
+        #model=A2C("MlpPolicy",env=subprocess_env,verbose=1)
+        #model.learn(total_timesteps=100000,log_interval=500)
+def train():
+        trainer=GBPTrainer()
+        trainer.train()
+        
+        
 algotest()
         

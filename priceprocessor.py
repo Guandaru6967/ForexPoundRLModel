@@ -21,12 +21,12 @@ def prepare_sequences(data,sequence_length=96):
     return np.array(sequences), np.array(labels)
 
 def ProcessDataWithAllFunctions(data):
+    data=addSMCData(data)
     data=addIndicators(data)
     data=setFairValueGaps(data)
     data=setHeikanishi(data)
     data=setCandleStickData(data)
-    data=setCandleStickPatterns(data) 
-    data=addSMCData(data)
+    data=setCandleStickPatterns(data)
     data=addMinutesofDay(data)
     return data
 
@@ -212,7 +212,7 @@ def calculate_zigzag(data, threshold=-0.00025):
     print("zigzag:\n ============",data)
     #zigzag_line_df = zigzag_line.reindex(data.index).interpolate(method='time')
     return main_data
-def addSMCData(data):
+def addSMCData(data:pd.DataFrame):
     def loadcolumnAtoB(a,b):
         columnlist=a.columns.to_list()
         maincolumn=columnlist[0]
@@ -225,18 +225,19 @@ def addSMCData(data):
                 b[column_name]=a[column]
                 
         return b
-    ohlc_data=data[["Open","High","Low","Close"]]
+    ohlc_data=data[["Open","High","Low","Close"]].copy()
     fairvaluedata=smc.fvg(ohlc_data)
     data=loadcolumnAtoB(fairvaluedata,data)
     orderblock=smc.ob(ohlc_data)
     data=loadcolumnAtoB(orderblock,data)
-    highs_lows=smc.highs_lows(ohlc_data)
-    highs_lows["Levels"]=highs_lows["Levels"].fillna(-1)
-    data=loadcolumnAtoB(highs_lows,data)
-    liquidity=smc.liquidity(ohlc_data)
-    data=loadcolumnAtoB(liquidity,data)
-    bos_choch=smc.bos_choch(ohlc_data,close_break=True)
-    data=loadcolumnAtoB(bos_choch,data)
+    # print(ohlc_data)
+    # highs_lows=smc.highs_lows(ohlc_data)
+    # print(highs_lows)
+    # highs_lows["Levels"]=highs_lows["Levels"].fillna(-1)
+    # data=loadcolumnAtoB(highs_lows,data)
+    # liquidity=smc.liquidity(ohlc_data)
+    # data=loadcolumnAtoB(liquidity,data)
+  
     return data
 def addMinutesofDay(data:pd.DataFrame):
     import datetime
@@ -249,8 +250,13 @@ def addMinutesofDay(data:pd.DataFrame):
         minutes=ticktime.hour*60+ticktime.minute
     
         return minutes
-    if("DateTime" in data.columns.to_list()):
+    if("Datetime" in data.columns.to_list()):
         data["TimeofDay"]=data['DateTime'].apply(readtime)
+    elif data.index.name=="Datetime":
+        datacopy=data.copy()
+        datacopy.reset_index(inplace=True,drop=False)
+        print(datacopy)
+        data["TimeofDay"]=datacopy['Datetime'].apply(readtime)
     else:
         datacopy=data.copy()
         datacopy.reset_index(drop=False)

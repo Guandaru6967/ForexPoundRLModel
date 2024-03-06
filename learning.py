@@ -11,7 +11,7 @@ import yfinance as yf
 import datetime
 from  stable_baselines3.common.vec_env import *
 from stable_baselines3.common.callbacks import EvalCallback, BaseCallback,StopTrainingOnRewardThreshold,StopTrainingOnNoModelImprovement
-
+from sb3_contrib import RecurrentPPO
 from stable_baselines3.a2c import A2C
 import matplotlib.pyplot as plt
 import os
@@ -87,19 +87,22 @@ class TradingRLClass:
         self.environment=gym.make("forex-v0",df=self.training_data,frame_bound=self.frame_bound,window_size=self.window_size)
         self.environment_maker=lambda : self.environment
         state=self.environment.reset()
-        self.dummyEnvironment=SubprocVecEnv([self.environment_maker ] )
+        self.dummyEnvironment=DummyVecEnv([self.environment_maker ] )
     
-        self.model=A2C("MlpPolicy",self.dummyEnvironment,verbose=1)
+        #self.model=A2C("MlpPolicy",self.dummyEnvironment,verbose=1)
+        self.model=RecurrentPPO("MlpLstmPolicy",self.dummyEnvironment,verbose=1)
         print(self.model.get_parameters())
         print(self.model.policy)
         
-        self.loadModel()
+        #self.loadModel()
         #quit()
         self.learnCallback= StopTrainingCallback(eval_freq=10000, threshold=0.15)
         self.stopNoImprovementCallback=StopTrainingOnNoModelImprovement(5,2000,1)
         self.evalCallback = EvalCallback(self.dummyEnvironment, eval_freq=1000, callback_after_eval=self.stopNoImprovementCallback, verbose=1)
 
-        self.stopCallback=StopTrainingOnRewardThreshold(0.02,1)
+        self.stopCallback=StopTrainingOnRewardThreshold(300,1)
+        self.evalCallback = EvalCallback(self.dummyEnvironment, eval_freq=1000, callback_after_eval=self.stopCallback, verbose=1)
+
     def buildEnvironment(self):
         while True:
             action=self.environment.action_space.sample()
@@ -113,7 +116,7 @@ class TradingRLClass:
                 break
     
     def trainRL(self,timesteps=100000):
-        self.model.learn(total_timesteps=timesteps)
+        self.model.learn(callback=self.evalCallback,total_timesteps=timesteps)
         self.saveModel()
     def loadModel(self):
         try:
