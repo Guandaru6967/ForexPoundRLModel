@@ -88,7 +88,7 @@ class TradingRLClass:
         self.environment_maker=lambda : self.environment
         state=self.environment.reset()
         self.dummyEnvironment=DummyVecEnv([self.environment_maker ] )
-    
+        
         #self.model=A2C("MlpPolicy",self.dummyEnvironment,verbose=1)
         self.model=RecurrentPPO("MlpLstmPolicy",self.dummyEnvironment,verbose=1)
         print(self.model.get_parameters())

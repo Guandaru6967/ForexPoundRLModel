@@ -15,16 +15,31 @@ import gymnasium as gym
 import uuid
 import pandas as pd
 import os
+
+from torch.utils.data.dataset import ConcatDataset
 from priceprocessor import PriceNormlizer
 from stable_baselines3.a2c import A2C
 from stable_baselines3.ppo import PPO
 import torch
 import pytorch_lightning as pl
 import torch.nn as nn
-import torch.functional as F
+import torch.nn.functional as F
 from torch.distributions import Categorical
-m=Categorical( torch.tensor([0.2,0.2,.2,2e-1,2.5,0.3]))
+from torch.utils.data import DataLoader,Dataset
+from torchrl.envs import (Compose, DoubleToFloat, ObservationNorm, StepCounter,
+                          TransformedEnv)
+class ForexDataLoader(DataLoader):
+        pass
+class ForexEnvDataSet(Dataset):
+    def __init__(self, batchdata:list):
+        self.batchdata = batchdata
 
+    def __len__(self):
+        return len(self.batchdata)
+    def __call__(self,value):
+            return self.batchdata.append(value)
+    def __getitem__(self, idx):
+        return self.batchdata[idx]
 class ObservationSpace(gym.Space):
         def __init__(self, *args,**kwargs):
                 super().__init__(*args,**kwargs)
@@ -50,7 +65,7 @@ class ForexPolicyLSTMNeuralNetwork(nn.Module):
                 # Forward pass through LSTM layer
                 lstmValue, _ = self.lstmLayer(x)
                 # Apply ReLU activation function
-                activationValue =nn.ReLU()(lstmValue)
+                activationValue =F.relu(lstmValue)
                 # Forward pass through fully connected layer
                 y = self.fullyconnectedLayer(activationValue)
                 return y
@@ -64,13 +79,20 @@ class ForexPPOAgent(pl.LightningModule):
                 self.clip_ratio=clip_ratio
                 self.value_coefficient=value_coefficient
                 self.entropy_coefficient=entropy_coefficient
-        def training_step(self, *args: plt.Any, **kwargs: plt.Any):
+        def configure_optimizers(self):
+                super().configure_optimizers()
+                optimizer=torch.optim.Adam(params=self.policy.parameters(),lr=self.learning_rate)
+                print("policy params to be optimized:",self.policy.parameters())
+                return optimizer
+        def training_step(self, *args, **kwargs):
                 super().training_step(*args, **kwargs)
                 print("Args:\n",args)
                 batch,batchidx=args
                 print("batch:\n",batch,"batchidx:\n",batchidx)
                 # Unpack batch
                 states, actions, rewards, next_states, dones = batch
+                print("states:",states)
+                print("netx_states:",next_states)
                 # Forward pass through policy network
                 logits = self.policy(states)
                 # Initialize Categorical distribution
@@ -100,6 +122,37 @@ class ForexPPOAgent(pl.LightningModule):
                 loss = policy_loss + self.vf_coef * value_loss - self.entropy_coef * entropy
 
                 return loss
+        def validation_step(self, batch, batch_idx):
+                states, actions, rewards, next_states, dones = batch
+                logits = self.policy(states)
+                dist = Categorical(logits=logits)
+                log_probs = dist.log_prob(actions)
+                values = self.policy(states)
+                next_values = self.policy(next_states)
+                returns, advantages = self._compute_advantages(rewards, values, next_values, dones)
+
+                # Policy loss
+                ratios = torch.exp(log_probs - log_probs.detach())
+                surr1 = ratios * advantages
+                surr2 = torch.clamp(ratios, 1 - self.clip_ratio, 1 + self.clip_ratio) * advantages
+                policy_loss = -torch.min(surr1, surr2).mean()
+
+                # Value function loss
+                value_loss = F.smooth_l1_loss(values, returns.detach())
+
+                # Entropy bonus
+                entropy = dist.entropy().mean()
+
+                # Total loss
+                loss = policy_loss + self.vf_coef * value_loss - self.entropy_coef * entropy
+
+                return loss
+        def validation_epoch_end(self, outputs):
+                avg_loss = torch.stack(outputs).mean()
+                self.log('val_loss', avg_loss)
+        def collectdata(self):
+                pass
+
 class PPOAgent(pl.LightningModule):
     def __init__(self, input_size, hidden_size, num_actions, lr=1e-3, gamma=0.99, clip_ratio=0.2, vf_coef=0.5, entropy_coef=0.01):
         super(PPOAgent, self).__init__()
@@ -138,6 +191,7 @@ class GBPForexEnvironment(gym.Env):
                 self.__default_account_balance__=self.account_balance
                 self.account_equity=self.__default_account_balance__
                 self.margin=self.account_balance
+                self.trade_outcomes=[]
                 self.lot_size_max=(risk_size*self.account_balance)/(20*self.calculate_pip_precision(self.max_price))
                 print("Max Lot size: ", self.lot_size_max)
                 self.temporal_window=temporal_window
@@ -196,14 +250,18 @@ class GBPForexEnvironment(gym.Env):
                                                                                        "balance":self.balance_space,
                                                                                        "equity":self.equity_space,
                                                                                        "margin":self.margin_space,
-                                                                                       "spread":self.spread_space
+                                                                                       "spread":self.spread_space,
+                                                                                       "profit":gym.spaces.Box(high=10e1000,low=0,dtype=np.float64),
+                                                                                       "loss":gym.spaces.Box(high=10e1000,low=0,dtype=np.float64)
                                                                                        })
                 self.trade_param_space=gym.spaces.Box(high=8000.00,low=10,shape=(2,))
-                print(self.trade_param_space.env)
-                self.action_space = gym.spaces.Box(low=np.array([0, 10, 10, 0.01]), high=np.array([2, 1000, 1000, self.lot_size_max]))
+                print(self.trade_param_space)
+                #[Option,TakeProfit,StopLoss,lot_size,modification target]
+                self.action_space = gym.spaces.Box(low=np.array([0.0, 10, 10, 0.01,0]), high=np.array([3.00, 1000, 1000, self.lot_size_max,self.max_trades]))
 
                 print("sample:",self.action_space.sample())
-                print(isinstance(self.action_space,gym.spaces.Tuple))
+                print("sample shape:",self.action_space.shape)
+                #print(isinstance(self.action_space,gym.spaces.Tuple))
                 
                 self.obs_sample=self.observation_space.sample()
                 print("Observation:",self.obs_sample)
@@ -223,9 +281,9 @@ class GBPForexEnvironment(gym.Env):
                 smallest_price_movement = 10 ** -pip_precision
                 price_difference = price2 - price1
                 pips = (price_difference / smallest_price_movement)
-                print("Prices 1 and 2:",price1, price2)
-                print("Pips:",pips)
-                print("pip_precision:",pip_precision)
+                # print("Prices 1 and 2:",price1, price2)
+                # print("Pips:",pips)
+                # print("pip_precision:",pip_precision)
                 return round(pips, pip_precision)
         def calculate_pip_precision(self,number):
                 """
@@ -276,7 +334,8 @@ class GBPForexEnvironment(gym.Env):
                                                                                        "equity":np.array([float(self.account_equity)]),
                                                                                        "margin":np.array([float(self.account_balance)]),
                                                                                        "spread":np.array([float(self.currency_spread)]),
-                                                                                        
+                                                                                        "profit":np.array([float(self.total_profits)]),
+                                                                                        "loss":np.array([float(self.total_losses)])
                                                                                        }
                 
                 
@@ -303,7 +362,6 @@ class GBPForexEnvironment(gym.Env):
                 #self.action=Dict({"LotSize":Box(0,70000,(1,1)),"Option":Discrete(3),"TakeProfit":Box(0,70000,(1,1)),"StopLoss":Box(0,70000,(1,1))})
                 
                
-                action[0]=self.trade_index
                 print("Made Action:",action)
                 
                 done=False
@@ -312,28 +370,31 @@ class GBPForexEnvironment(gym.Env):
                 outcome=0
                 reward=0
                 
-                #Actions Evalution
+                #Trades evalution with respect to current trade
                 for trade in self.open_trades:
                         
                         current_high=self.currencies.iloc[self.current_price]["High"]
                         current_low=self.currencies.iloc[self.current_price]["Low"]
-                        print("Trade Entry:",trade_entry,current_high)
-                        buy_trade_result=self.calculate_pips(trade_entry,current_high)
-                        sell_trade_result=self.calculate_pips(current_low,trade_entry)
-
-                        buy_trade_stop=self.calculate_pips(current_low,trade_entry)
-                        sell_trade_stop=self.calculate_pips(trade_entry,current_high)
+                      
+                       
 
                        
 
                         outcome=0 # profit or loss
-                        trade_entry=trade[3]
-                        trade_stop_loss=trade[5][0]
-                        trade_take_profit=trade[4][0]
-                        trade_lot_size=trade[1]
+                        trade_entry=trade["Entry"]
+                        trade_stop_loss=trade['StopLossPips']
+                        trade_take_profit=trade["TakeProfitPips"]
+                        trade_lot_size=trade["LotSize"]
 
-                        trade_id=trade[0]
-                        trade_option=trade[2]
+                        trade_id=trade["Id"]
+                        trade_option=trade["Option"]
+                        #Current  price  relative to the trade entrys 
+                        buy_trade_result=self.calculate_pips(trade_entry,current_high)
+                        sell_trade_result=self.calculate_pips(current_low,trade_entry)
+                
+                        buy_trade_stop=self.calculate_pips(current_low,trade_entry)
+                        sell_trade_stop=self.calculate_pips(trade_entry,current_high)
+                        print("Trade Entry:",trade_entry,current_high)
                         # if trade is a buy
                         if trade_option==0:
                                 #Hit buy stop loss
@@ -377,11 +438,14 @@ class GBPForexEnvironment(gym.Env):
                                                 print("Take profit diff: ",trade_take_profit,sell_trade_result)
                                                 print(f"Sell trade  {trade_id} has hit take profit at {current_low} from entry {trade_entry}")
                                                 print("Outcome:",outcome)
-                        if type(outcome) is not int:
+                        if type(outcome) is not int and type(outcome) is not float and type(outcome) is not np.float64 :
+                                print(type(outcome))
                                 outcome=outcome[0]
-                        self.account_balance=self.account_balance+outcome
                         
-                                
+                        #Update account balance
+                        self.account_balance=self.account_balance+outcome
+                        #Keep record of trade
+                        self.trade_outcomes.append({"profit":outcome if outcome>0 else 0,"loss":abs(outcome) if outcome<0 else 0,"entry":trade_entry,"option":"buy" if trade_option==0 else "sell" })    
                         #if in profit reward the pips
 
                         #if in loss remove the pips:
@@ -389,47 +453,49 @@ class GBPForexEnvironment(gym.Env):
                 for i in trades_to_close:
                         self.open_trades.remove(i)   
                 #Action Exectution
-                TakeProfit=action[4][0]
-                StopLoss=action[5][0]
-                Option=action[2]
-
+                TakeProfit=action[1]
+                StopLoss=action[2]
+                Option=int(round(action[0],0))
+                
+                LotSize=action[3]
+                ModificationId=action[4]
+              
+                currentprice=self.currencies.iloc[self.current_price]["High"]
+                #Sell Action
                 if Option==1:
-                        entry=self.currencies.iloc[self.current_price]["Low"]
-                        print(action[4])
-                        print(entry)
-                        action[3]=entry
-                        stoppips=self.calculate_pips(entry,StopLoss)
-                        reward-=(self.average_loss_pips-stoppips)
-                        action[5]=np.array([stoppips])
-                        action[4]=np.array([self.calculate_pips(TakeProfit,entry)])
-                        self.open_trades.append(action)
-                        self.track_data["trades"].append(action)
                         print("Made a Sell Trade:" ,action)
+                #Buy Action
                 if Option==0:
-                        entry=self.currencies.iloc[self.current_price]["High"]
-                        action[3]=entry
-                        self.track_data["trades"].append(action)
-                        stoppips=self.calculate_pips(StopLoss ,entry)
-                        reward-=(self.average_loss_pips-stoppips)
-                        action[5]=np.array([stoppips])
-                        action[4]=np.array([self.calculate_pips(entry,TakeProfit)])
-                        self.open_trades.append(action)
                         print("Made a Buy Trade",action)
+                #Modification Option
                 if Option==2:
+                        print("Made a Modification Action to trade:",action)
                         for trade in self.open_trades:
-                                if trade["Id"]==action["Id"]:
+                                if trade["Id"]==int(round(ModificationId,0)):
+                                                print(f"Modification made to trade {trade['Id']}:",trade)
                                                 #if its a buy trade
-                                                if trade["Option"]==0:
-                                                        trade["StopLoss"]=self.calculate_pips(StopLoss ,entry_price)
-                                                        trade["TakeProfit"]=self.calculate_pips(TakeProfit,trade["Entry"])
-                                                elif trade["Option"]==1: 
-                                                        #trade["StopLoss"]=StopLoss
-                                                        trade["TakeProfit"]=self.calculate_pips(trade["Entry"],TakeProfit)
-                                                        trade["StopLoss"]=self.calculate_pips(StopLoss,trade["Entry"])
+                                                trade["StopLoss"]=StopLoss
+                                                trade["TakeProfit"]=TakeProfit
+                                                print("New trade:",trade)
+                #Wait option
                 if Option==3:
                         reward+=1
                         pass
-                                        
+                if Option==1 or Option==0 :
+                        reward==0
+                        
+                #Ajust environment based on buy or sell trades
+                if Option==1 or Option==0 and  len(self.open_trades)<self.max_trades:
+                        self.track_data["trades"].append(action)
+                        #reward is dedacted if trading ruls for avergae profit and loss are broken
+                        reward-=(self.average_loss_pips-StopLoss)
+                        reward-=(self.average_profit_pips-TakeProfit)
+                        #dd 
+                        trade={"Id":self.get_nextid(),"Entry":currentprice,"StopLossPips":StopLoss,"TakeProfitPips":TakeProfit,"Option":Option,"LotSize":LotSize}
+                        self.open_trades.append(trade)
+                else :
+                        #Punish for more trying to execute more trades
+                        reward-=10
                 #Add price to the environment
                
 
@@ -463,11 +529,19 @@ class GBPForexEnvironment(gym.Env):
                                                                                        "equity":np.array([float(self.account_equity)]),
                                                                                        "margin":np.array([float(self.account_balance)]),
                                                                                        "spread":np.array([float(self.currency_spread)]),
-                                                                                     
+                                                                                       "profit":np.array([float(self.total_profits)]),
+                                                                                        "loss":np.array([float(self.total_losses)])
                                                                                        }
                 info={"active-trades":len(self.open_trades),"outcomes":outcome,"closed-trades":len(trades_to_close)}
                 self.current_price+=1
                 return state,reward ,done,truncated,info
+        def get_nextid(self):
+                ids=[ i["Id"] for i  in self.open_trades]
+                labels=[i for i in range(3)]
+                for i in labels:
+                        if i not in ids:
+                                return i
+                return np.random.randn()
         def render(self)->None:
                 fig, axs = plt.subplots(4)
                 x=self.track_data["steps"]
@@ -489,23 +563,55 @@ class GBPForexEnvironment(gym.Env):
                 axs[3].plot(x, y4, color='purple', marker='x', linestyle='-')
                 axs[3].set_title('Account Balance')
                 plt.show()
-
+        @property
+        def total_profits(self):
+                return sum([i["profit"] for i in self.trade_outcomes])
+        @property
+        def total_losses(self):
+                return sum([i["loss"] for i in self.trade_outcomes])
 
 class GBPTrainer:
-        def __init__(self):
+        def __init__(self,traindata:pd.DataFrame):
                 gbpusd=os.path.join("data","GBPUSD_DATA")
                 testdata=os.path.join("data","SINE_FXENV_TESTDATA.csv")
 
                 testdata=pd.read_csv(testdata).round(5)
                 gbpusd=pd.read_csv(gbpusd).round(5)
                 reward_threshold=1000
-                env=GBPForexEnvironment(data=testdata,account_balance=100000)
-                agent=ForexPPOAgent()
+                self.environment=GBPForexEnvironment(data=traindata,account_balance=100000)
+            
+                self.agent=ForexPPOAgent(input_size=len(traindata.columns.to_list()),action_size=self.environment.action_space.shape[0])
                 reward_threshold_callback = RewardThresholdCallback(reward_threshold)
 
                 # Train the agent using a Lightning Trainer with the callback
-                trainer = pl.Trainer(callbacks=[reward_threshold_callback])
-                trainer.fit(agent, env)
+                self.trainer = pl.Trainer(max_epochs=2000,callbacks=[reward_threshold_callback])
+                
+        def train(self):
+                self.agent=self.agent.train()
+                self.dataloader=DataLoader(dataset=self.collectEnvdata())
+                self.trainer.fit(self.agent,train_dataloaders=self.dataloader) 
+                
+        def collectEnvdata(self):
+                
+                
+                dataset=ForexEnvDataSet([])
+                for epoch in range(self.trainer.max_epochs):
+                        state = self.environment.reset()  # Reset the environment
+                        done = False
+                        while not done:
+                                # Interact with the environment
+                                logits = self.agent.policy(state)  # Forward pass through policy network to get logits
+                                action_probs = F.softmax(logits, dim=-1)  # Convert logits to action probabilities
+                                action = torch.multinomial(action_probs, num_samples=1) 
+                                print("Action taken by policy:",action)
+                                next_state, reward, done, _ = self.environment.step(action)  # Take action in the environment
+                                
+                                # Collect data for training
+                                dataset(torch.tensor(data=[state, action, reward, next_state, done]))
+                                
+                                state = next_state  # Update the current state
+                                
+                return dataset
 
 
 
@@ -525,38 +631,34 @@ testdata=os.path.join("data","SINE_FXENV_TESTDATA.csv")
 testdata=pd.read_csv(testdata).round(5)
 gbpusd=pd.read_csv(gbpusd).round(5)
 def test():
-        env=GBPForexEnvironment(data=testdata,account_balance=100000)
+        env=GBPForexEnvironment(data=testdata[1000:],account_balance=100000)
         #print(env.currencies.iloc[2000])
-        
+        #print(env.action_space.sample())
 
         #for i in range(1000):
-        waitaction={"Id":2,"LotSize":np.array([15.00]),"Option":3,"Entry":np.array([1.30000]),"TakeProfit":np.array([1.30500]),"StopLoss":np.array([1.29000])}
-        buyaction={"Id":0,"LotSize":np.array([0.15]),"Option":0,"Entry":np.array([1.30000]),"TakeProfit":np.array([1.3200]),"StopLoss":np.array([1.29000])}
+        waitaction=np.array( [3.00, 3020, 30500, 15.00, 00000])
+        buyaction= np.array([0.00, 3020, 2900, 20.00, 00000])
 
-        firstaction={"Id":0,"LotSize":np.array([0.15]),"Option":1,"Entry":np.array([0.02]),"TakeProfit":np.array([1.33500]),"StopLoss":np.array([1.3500])}
-        sellaction={"Id":0,"LotSize":np.array([0.15]),"Option":1,"Entry":np.array([0.02]),"TakeProfit":np.array([1.31000]),"StopLoss":np.array([1.31000])}
+        firstaction= np.array([0.00, 1.33500, 1.3500, 15.00, 00000])
         
-        env.step(buyaction)
+        sellaction =np.array([1.00, 2120, 1000, 15.00, 00000])
+        
+        env.step(sellaction)
         print(100)
         for i in range(30):
                 env.step(waitaction)
                 print(20)
         #env.render()
        
-        check_env(env)
+        #check_env(env)
 
-def algotest():
-        def envProcess():
-                env=GBPForexEnvironment(data=testdata,account_balance=100000)
-                return env
-        num_envs=1
-        subprocess_env = DummyVecEnv([envProcess for i in range(num_envs)])
-        #model=A2C("MlpPolicy",env=subprocess_env,verbose=1)
-        #model.learn(total_timesteps=100000,log_interval=500)
+def algotest(data:pd.DataFrame):
+        trainer=GBPTrainer(testdata)
+        trainer.train()
 def train():
         trainer=GBPTrainer()
         trainer.train()
         
-        
-algotest()
+#test()       
+algotest(testdata)
         

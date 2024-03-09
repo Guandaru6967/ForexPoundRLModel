@@ -18,8 +18,65 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import numpy as np
 import datetime
 from priceprocessor import addMinutesofDay
-from kivy.uix.floatlayout import*
-from kivy.app import App
+import torch
+import tradermade as tm
+import requests
+
+apikey="OejduXJ7a0TRvuYIxtYV"
+tm.set_rest_api_key("OejduXJ7a0TRvuYIxtYV")
+#dataframe=tm.timeseries(currency='EURUSD',period=5, start="2024-03-06-00:00",end="2024-03-09-17:50",interval="minute",fields=["open", "high", "low","close"]) # returns timeseries data for the currency requested interval is daily, hourly, minute - fields is optional
+
+start_date = datetime.datetime(2024, 2, 21,0,0)
+
+# Initialize a counter for the number of weekdays
+weekday_count = 0
+
+# Iterate over days until 100 weekdays are reached
+current_date = start_date
+deltadate=0
+while weekday_count < 100:
+    # Check if the current day is a weekday (Monday to Friday)
+    if current_date.weekday() < 5:
+        weekday_count += 1
+        
+        if deltadate==0:
+                currentdatename=current_date.strftime('%Y-%m-%d-%H:%M')
+                seconddatename=(current_date+datetime.timedelta(days=2)+datetime.timedelta(hours=17)).strftime('%Y-%m-%d-%H:%M')
+                print(currentdatename,seconddatename)
+                url = "https://marketdata.tradermade.com/api/v1/timeseries"
+                
+                querystring = {"currency":"GBPUSD","api_key":apikey,"start_date":currentdatename,"end_date":seconddatename,"format":"records","interval":"minute","period":5}
+                
+                response = requests.get(url, params=querystring)
+                dataframe=response.json()
+                print(dataframe)
+                dataframe=pd.DataFrame(dataframe["quotes"])
+                
+             
+                #dataframe=tm.timeseries(currency='EURUSD',period=5, start=currentdatename,end=seconddatename,interval="minute",fields=["open", "high", "low","close"]) # returns timeseries data for the currency requested interval is daily, hourly, minute - fields is optional
+                print(dataframe)
+                dataframe.to_csv(os.path.join("data/GBPUSD5min",f"GBPUSD{currentdatename}{seconddatename}"))
+                
+                print(f"Saved data from date {currentdatename} to {seconddatename}")
+                deltadate=2
+        deltadate-=1
+    # Move to the next day
+    current_date += datetime.timedelta(days=1)
+
+quit()
+# Check if GPU is available
+if torch.cuda.is_available():
+    # Get the number of available GPUs
+    num_gpus = torch.cuda.device_count()
+
+    print(f"Number of available GPUs: {num_gpus}")
+
+    # Access information about each GPU
+    for gpu_id in range(num_gpus):
+        gpu_name = torch.cuda.get_device_name(gpu_id)
+        print(f"GPU {gpu_id}: {gpu_name}")
+else:
+    print("No GPU available. PyTorch will use CPU.")
 
 
 def generateSineTestData():
@@ -90,9 +147,9 @@ def generateSineTestData():
         #df=df[['Open' ,'High', 'Low', 'Close']]
         return df
 df=pd.read_csv(os.path.join("data","SINE_FXENV_TESTDATA.csv"))
-data=addMinutesofDay(df)["TimeofDay"].to_numpy()[24:100]
+#data=addMinutesofDay(df)["TimeofDay"].to_numpy()[24:100]
 df=generateSineTestData()
-print(data)
+#print(data)
 # df["Datetime"]=df["Unnamed: 0"]
 # df=df.drop("Unnamed: 0",axis=1)
 # df.set_index("Datetime",drop=True,inplace=True)
@@ -105,7 +162,7 @@ print(data)
 # print(isinstance(datatest,tuple))
 # df=generateSineTestData()
 # #matplotlib.use("GTK3Agg")
-mplf.plot(df, type='candle', style='charles', title='OHLC Chart', ylabel='Price')
+mplf.plot(df[1018:], type='candle', style='charles', title='OHLC Chart', ylabel='Price')
 mplf.show()
 # dict of functions by group
 # for group, names in talib.get_function_groups():
