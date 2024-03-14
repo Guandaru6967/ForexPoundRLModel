@@ -60,7 +60,7 @@ def setHeikanishi(data):
     data["HK_Open"].fillna(0, inplace=True)
     return data
 
-def setCandleStickData(data):
+def setCandleStickData(data:pd.DataFrame):
     data['Body'] = data['Close'] - data['Open']
     data['UpperWick'] = data['High'] - data[['Open', 'Close']].max(axis=1)
     data['LowerWick'] = data[['Open', 'Close']].min(axis=1) - data['Low']
@@ -69,8 +69,9 @@ def setCandleStickData(data):
     data['Bullish'] = data['Close'] > data['Open']
     data['Bearish'] = data['Close'] < data['Open']
 
-    data["Bullish"].replace({True: 1, False: 0})
-    data["Bearish"].replace({True: 1, False: 0})
+    data["Bullish"]=data["Bullish"].replace({True: 1, False: 0})
+    data["Bearish"]=data["Bullish"].replace({True: 1, False: 0})
+    
     return data
 def fiveMinAsFourHour(data):
     """
@@ -167,9 +168,7 @@ def calculate_zigzag(data, threshold=-0.00025):
     highs = data['High']
     lows = data['Low']
     turning_points = []
-    print("b:",data)
     data.reset_index(drop=False,inplace=True)
-    print("a:",data)
     last_peak_trough = data.index[0]
     direction = None
     
@@ -242,26 +241,18 @@ def addSMCData(data:pd.DataFrame):
 def addMinutesofDay(data:pd.DataFrame):
     import datetime
     def readtime(time):
-        if type(time) is int:
-             ticktime=datetime.datetime.fromtimestamp(time)
-        else:
-            ticktime=datetime.datetime.fromisoformat(time)
+        time_object = datetime.datetime.strptime(time, "%H:%M:%S")
+
+        # Extract hours, minutes, and seconds
+        hours, minutes, seconds = time_object.hour, time_object.minute, time_object.second
+
+        # Calculate total seconds
+        total_seconds = hours * 3600 + minutes * 60 + seconds
         
-        minutes=ticktime.hour*60+ticktime.minute
     
-        return minutes
-    if("Datetime" in data.columns.to_list()):
-        data["TimeofDay"]=data['DateTime'].apply(readtime)
-    elif data.index.name=="Datetime":
-        datacopy=data.copy()
-        datacopy.reset_index(inplace=True,drop=False)
-        print(datacopy)
-        data["TimeofDay"]=datacopy['Datetime'].apply(readtime)
-    else:
-        datacopy=data.copy()
-        datacopy.reset_index(drop=False)
-        print(datacopy)
-        data["TimeofDay"]=datacopy['Datetime'].apply(readtime)
-        del datacopy
+        return total_seconds
+    data["TimeofDay"]=data['Time'].apply(readtime)
+    data=data.drop("Time",axis=1)
+
     return data
      

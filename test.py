@@ -17,54 +17,16 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import numpy as np
 import datetime
-from priceprocessor import addMinutesofDay
+from priceprocessor import addMinutesofDay,ProcessDataWithAllFunctions
 import torch
 import tradermade as tm
 import requests
+from torchrl.envs import (TransformedEnv,Compose,DoubleToFloat,StepCounter,ObservationTransform)
+from torchrl.data.replay_buffers import ReplayBuffer
+from torchrl.data.replay_buffers.samplers import (SamplerWithoutReplacement)
 
-apikey="OejduXJ7a0TRvuYIxtYV"
-tm.set_rest_api_key("OejduXJ7a0TRvuYIxtYV")
-#dataframe=tm.timeseries(currency='EURUSD',period=5, start="2024-03-06-00:00",end="2024-03-09-17:50",interval="minute",fields=["open", "high", "low","close"]) # returns timeseries data for the currency requested interval is daily, hourly, minute - fields is optional
-
-start_date = datetime.datetime(2024, 2, 21,0,0)
-
-# Initialize a counter for the number of weekdays
-weekday_count = 0
-
-# Iterate over days until 100 weekdays are reached
-current_date = start_date
-deltadate=0
-while weekday_count < 100:
-    # Check if the current day is a weekday (Monday to Friday)
-    if current_date.weekday() < 5:
-        weekday_count += 1
-        
-        if deltadate==0:
-                currentdatename=current_date.strftime('%Y-%m-%d-%H:%M')
-                seconddatename=(current_date+datetime.timedelta(days=2)+datetime.timedelta(hours=17)).strftime('%Y-%m-%d-%H:%M')
-                print(currentdatename,seconddatename)
-                url = "https://marketdata.tradermade.com/api/v1/timeseries"
-                
-                querystring = {"currency":"GBPUSD","api_key":apikey,"start_date":currentdatename,"end_date":seconddatename,"format":"records","interval":"minute","period":5}
-                
-                response = requests.get(url, params=querystring)
-                dataframe=response.json()
-                print(dataframe)
-                dataframe=pd.DataFrame(dataframe["quotes"])
-                
-             
-                #dataframe=tm.timeseries(currency='EURUSD',period=5, start=currentdatename,end=seconddatename,interval="minute",fields=["open", "high", "low","close"]) # returns timeseries data for the currency requested interval is daily, hourly, minute - fields is optional
-                print(dataframe)
-                dataframe.to_csv(os.path.join("data/GBPUSD5min",f"GBPUSD{currentdatename}{seconddatename}"))
-                
-                print(f"Saved data from date {currentdatename} to {seconddatename}")
-                deltadate=2
-        deltadate-=1
-    # Move to the next day
-    current_date += datetime.timedelta(days=1)
-
-quit()
-# Check if GPU is available
+from tensordict.nn.distributions import NormalParamExtractor
+from trading_algo import GBPForexEnvironment
 if torch.cuda.is_available():
     # Get the number of available GPUs
     num_gpus = torch.cuda.device_count()
@@ -146,8 +108,30 @@ def generateSineTestData():
         #print(df)
         #df=df[['Open' ,'High', 'Low', 'Close']]
         return df
-df=pd.read_csv(os.path.join("data","SINE_FXENV_TESTDATA.csv"))
-#data=addMinutesofDay(df)["TimeofDay"].to_numpy()[24:100]
+datapath=os.path.join("data/GBPUSD5MIN","GBPUSD_M5_2020_01_06_0000_2023_09_04_0045.csv")
+df=pd.read_csv(datapath,delimiter="\t")
+def datadynamicprocess(df):
+
+        dataframe=pd.DataFrame()
+
+        dataframe[[ i.title().replace("<","").replace(">","")  for i in df.columns.to_list()]]=df[[i for i in df.columns.to_list()]]
+
+
+        dataframe=ProcessDataWithAllFunctions(dataframe[0:10000])
+
+        dataframe["Date"]=pd.to_datetime(dataframe["Date"],format='%Y.%m.%d')
+
+        dataframe.set_index("Date",inplace=True)
+        dataframe=dataframe.drop("Vol",axis=1)
+        dataframe=dataframe.drop("Time",axis=1)
+        return dataframe
+df.to_csv(datapath)
+quit()
+base_env=GBPForexEnvironment(datadynamicprocess(df),account_balance=100)
+base_env=TestEnv()
+env=TransformedEnv(base_env,Compose(DoubleToFloat(),StepCounter()))
+print(env.action_spec)
+quit()
 df=generateSineTestData()
 #print(data)
 # df["Datetime"]=df["Unnamed: 0"]
