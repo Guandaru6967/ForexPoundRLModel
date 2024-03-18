@@ -23,7 +23,7 @@ from torchrl.envs import (
     Compose,DoubleToFloat,StepCounter)
 from torchrl.envs.utils import RandomPolicy
 from torchrl.collectors.collectors import SyncDataCollector
-
+import mplfinance as mplf
 
 def generateSineTestData():
         start_price = 1.30000  # Starting price
@@ -89,6 +89,7 @@ def generateSineTestData():
         index = pd.date_range(start='2024-01-01', periods=num_intervals, freq='5T')
         
         df = pd.DataFrame(ohlc_data, columns=columns, index=index)
+        df=df.round(5)
         #print(df)
         #df=df[['Open' ,'High', 'Low', 'Close']]
         return df
@@ -112,7 +113,7 @@ class GBPForexEnvironment(gym.Env):
                 self.max_price=0.0
                 self.min_price=0.00
                 count=0
-                
+                self.price_state=0
                 self.current_price=temporal_window
                 
                 self.currencies=data#PriceNormlizer(data).round(6)
@@ -122,7 +123,7 @@ class GBPForexEnvironment(gym.Env):
                 
                 self.max_value=max(self.currencies.max().to_numpy())
                 self.min_value=min(self.currencies.min().to_numpy())
-                print("HL:",self.max_value,self.min_value)
+                #print("HL:",self.max_value,self.min_value)
                 
                 count+=1
                 
@@ -193,15 +194,15 @@ class GBPForexEnvironment(gym.Env):
                 self.trade_param_space=gym.spaces.Box(high=8000.00,low=10,shape=(2,))
 
                 #[Option,TakeProfit,StopLoss,lot_size,modification target]
-                self.action_space = gym.spaces.Box(low=np.array([0.0, 10, 10, 0.01,0]), high=np.array([3.00, 1000, 1000, self.lot_size_max,self.max_trades]))
+                self.action_space = gym.spaces.Box(low=np.array([0.0, 50.0, 50.0, 0.01]), high=np.array([3.00, 4000.0, 200.0, self.lot_size_max]))
 
-                print("Action sample:",self.action_space.sample())
+                #print("Action sample:",self.action_space.sample())
                 #print("sample shape:",self.action_space.shape)
                 #print(isinstance(self.action_space,gym.spaces.Tuple))
-                print(self.currencies.dtypes)
+                
                 self.obs_sample=self.observation_space.sample()
-                print("Observation sample:",self.obs_sample,self.obs_sample["temporal_window_state"].dtype,self.obs_sample["temporal_window_state"].shape)
-                print("Max lot size:",self.lot_size_max)
+                #print("Observation sample:",self.obs_sample,self.obs_sample["temporal_window_state"].dtype,self.obs_sample["temporal_window_state"].shape)
+                #print("Max lot size:",self.lot_size_max)
         def calculate_pips(self,price1, price2,precision=5):
                 """
                 Calculate the number of pips between two prices.
@@ -293,12 +294,13 @@ class GBPForexEnvironment(gym.Env):
 
                 A sell option is 0 while a buy option is 1 , -1 is modify tp
                 """
-                print("======Action======\n",action)
+                #print("======Action======\n",action)
                 truncated=False
                 #self.action=Dict({"LotSize":Box(0,70000,(1,1)),"Option":Discrete(3),"TakeProfit":Box(0,70000,(1,1)),"StopLoss":Box(0,70000,(1,1))})
                 
                
-                print("Made Action:",action)
+                print("Made Action:",action,self.price_state)
+                self.price_state+=1
                 
                 done=False
                 
@@ -312,10 +314,6 @@ class GBPForexEnvironment(gym.Env):
                         current_high=self.currencies.iloc[self.current_price]["High"]
                         current_low=self.currencies.iloc[self.current_price]["Low"]
                       
-                       
-
-                       
-
                         outcome=0 # profit or loss
                         trade_entry=trade["Entry"]
                         trade_stop_loss=trade['StopLossPips']
@@ -330,7 +328,7 @@ class GBPForexEnvironment(gym.Env):
                 
                         buy_trade_stop=self.calculate_pips(current_low,trade_entry)
                         sell_trade_stop=self.calculate_pips(trade_entry,current_high)
-                        print("Trade Entry:",trade_entry,current_high)
+                        #print("Trade Entry:",trade_entry,current_high)
                         # if trade is a buy
                         if trade_option==0:
                                 #Hit buy stop loss
@@ -338,20 +336,20 @@ class GBPForexEnvironment(gym.Env):
                                         if buy_trade_stop>0:
                                                 reward=-trade_stop_loss
                                                 trades_to_close.append(trade)
-                                                outcome-=reward*trade_lot_size*10
+                                                outcome+=reward*trade_lot_size
                                                 print(" buy trade stop is given by:", current_low,trade_entry)
                                                 print("Stop loss diff: ",trade_stop_loss,buy_trade_stop)
                                                 print(f"Buy trade trade {trade_id} has hit stop loss at {current_low} from entry {trade_entry}")
-                                                print("Outcome:",outcome)
+                                                print("Loss Outcome:",outcome)
                                 #Hit sell take profit
                                 if trade_take_profit<=buy_trade_result:
                                         reward+=trade_take_profit
                                         trades_to_close.append(trade)
-                                        outcome+=reward*trade_lot_size*10
+                                        outcome+=reward*trade_lot_size
                                         print(" buy trade result is given by:", current_high,trade_entry)
                                         print("Take profit diff: ",trade_take_profit,buy_trade_result)
                                         print(f"Buy trade trade {trade_id} has hit take profit at {current_high} from entry {trade_entry}")
-                                        print("Outcome:",outcome)
+                                        print("Profit Outcome:",outcome)
                         #if trade is a sell
                         elif  trade_option==1:
                                 if abs(trade_stop_loss)<=abs(sell_trade_stop):
@@ -359,23 +357,22 @@ class GBPForexEnvironment(gym.Env):
                                                 #if trade is in break even mode or in profit mode
                                                 reward=-trade_stop_loss
                                                 trades_to_close.append(trade)
-                                                outcome-=reward*trade_lot_size*10
+                                                outcome+=(reward*trade_lot_size)
                                                 print(" sell trade stop is given by:", current_low,trade_entry)
                                                 print("Stop loss diff: ",trade_stop_loss,sell_trade_stop)
                                                 print(f"Sell trade  {trade_id} has hit stop loss at {current_low} from entry {trade_entry}")
-                                                print("Outcome:",outcome)
+                                                print("Loss Outcome:",outcome)
                                 if trade_take_profit<=sell_trade_result:
                                         if(sell_trade_result)>0:
                                                 reward=+trade_take_profit
                                                 trades_to_close.append(trade)
-                                                outcome+=reward*trade_lot_size*10
-                                                
+                                                outcome+=reward*trade_lot_size
                                                 print(" Sell trade result is given by:", current_low,trade_entry)
                                                 print("Take profit diff: ",trade_take_profit,sell_trade_result)
                                                 print(f"Sell trade  {trade_id} has hit take profit at {current_low} from entry {trade_entry}")
-                                                print("Outcome:",outcome)
+                                                print("Profit Outcome:",outcome)
                         if type(outcome) is not int and type(outcome) is not float and type(outcome) is not np.float64 :
-                                print(type(outcome))
+                                #print(type(outcome))
                                 outcome=outcome[0]
                         
                         #Update account balance
@@ -385,16 +382,16 @@ class GBPForexEnvironment(gym.Env):
                         #if in profit reward the pips
 
                         #if in loss remove the pips:
-                print(len(trades_to_close),trades_to_close,self.open_trades)
+                #print(len(trades_to_close),trades_to_close,self.open_trades)
                 for i in trades_to_close:
-                        self.open_trades.remove(i)   
+                        if i in self.open_trades:
+                                self.open_trades.remove(i)   
                 #Action Exectution
                 TakeProfit=action[1]
                 StopLoss=action[2]
                 Option=int(round(action[0],0))
                 
                 LotSize=action[3]
-                ModificationId=action[4]
               
                 currentprice=self.currencies.iloc[self.current_price]["High"]
                 #Sell Action
@@ -404,18 +401,22 @@ class GBPForexEnvironment(gym.Env):
                 if Option==0:
                         print("Made a Buy Trade",action)
                 #Modification Option
-                if Option==2:
-                        print("Made a Modification Action to trade:",action)
-                        for trade in self.open_trades:
-                                if trade["Id"]==int(round(ModificationId,0)):
-                                                print(f"Modification made to trade {trade['Id']}:",trade)
-                                                #if its a buy trade
-                                                trade["StopLoss"]=StopLoss
-                                                trade["TakeProfit"]=TakeProfit
-                                                print("New trade:",trade)
-                #Wait option
                 if Option==3:
-                        reward+=1
+                        print("Made a Wait option")
+                        reward+=20
+                        pass
+                        # print("Made a Modification Action to trade:",action)
+                        # for trade in self.open_trades:
+                        #         if trade["Id"]==int(round(ModificationId,0)):
+                        #                         print(f"Modification made to trade {trade['Id']}:",trade)
+                        #                         #if its a buy trade
+                        #                         trade["StopLoss"]=StopLoss
+                        #                         trade["TakeProfit"]=TakeProfit
+                        #                         print("New trade:",trade)
+                #Wait option
+                if Option==2:
+                        print("Made a Wait option")
+                        reward+=20
                         pass
                 if Option==1 or Option==0 :
                         reward==0
@@ -531,7 +532,7 @@ class FXTorchEnv(EnvBase):
                 
                 self.max_value=max(self.currencies.max().to_numpy())
                 self.min_value=min(self.currencies.min().to_numpy())
-                print("HL:",self.max_value,self.min_value)
+                #print("HL:",self.max_value,self.min_value)
                 
                 count+=1
                 
@@ -596,7 +597,8 @@ class FXTorchEnv(EnvBase):
                                                                                        "equity":torch.tensor([float(self.account_equity)],dtype=torch.float64),
 
                                                                                        },batch_size=[1,])
-                
+                #print(reset_obs["temporal_window_state"])
+                #print("reset_obs in:", self.observation_spec.is_in(reset_obs)) 
                 #print("reset data:",reset_obs,reset_obs["temporal_window_state"].dtype,reset_obs["temporal_window_state"].shape)
                 #print("reset_data obs shape:",max(np.unique(reset_obs["temporal_window_state"])),min(np.unique(reset_obs["temporal_window_state"])))
                 return reset_obs
@@ -728,7 +730,7 @@ class FXTorchEnv(EnvBase):
                         pass
                         #print("Made a Buy Trade",action)
                 #Modification Option
-                if Option==2:
+                if Option==3:
                         #print("Made a Modification Action to trade:",action)
                         for trade in self.open_trades:
                                 if trade["Id"]==int(round(ModificationId,0)):
@@ -738,7 +740,7 @@ class FXTorchEnv(EnvBase):
                                                 trade["TakeProfit"]=TakeProfit
                                                 #print("New trade:",trade)
                 #Wait option
-                if Option==3:
+                if Option==2:
                         reward+=1
                         pass
                 if Option==1 or Option==0 :
@@ -787,13 +789,13 @@ class FXTorchEnv(EnvBase):
                 new_state=TensorDict({"temporal_window_state":torch.tensor(self.currencies.iloc[self.current_price-self.temporal_window:self.current_price][self.features_fields].to_numpy(),dtype=torch.float64).view(1,self.temporal_window,len(self.features_fields)),
                                                                                        "balance":torch.tensor([float(self.account_balance)],dtype=torch.float64),
                                                                                        "equity":torch.tensor([float(self.account_equity)],dtype=torch.float64),
-                                                                                       
                                                                                       "reward":torch.tensor([float(outcome)],dtype=torch.float64),
                                                                                         "done":torch.tensor([done],dtype=torch.bool)
                                                                                        },batch_size=state.shape)
+                
                 #info={"active-trades":len(self.open_trades),"outcomes":outcome,"closed-trades":len(trades_to_close)}
                 self.current_price+=1
-                
+                #print("output step in:", self.observation_spec.is_in(new_state)) 
                 
               
                 return new_state
@@ -834,7 +836,7 @@ class FXTorchEnv(EnvBase):
                 # action-spec will be automatically wrapped in input_spec when
                 # `self.action_spec = spec` will be called supported
                 self.action_spec = BoundedTensorSpec(low=torch.tensor([[0.0, 10, 10, 0.01,0]]), 
-                       high=torch.tensor([[3.00, 1000, 1000, 30,3]]),
+                       high=torch.tensor([[3.00, 1000, 1000, 30,self.max_trades]]),
                         dtype=torch.float64
                 )
                 
@@ -916,8 +918,12 @@ class FXTorchEnv(EnvBase):
                         if i not in ids:
                                 return i
                 return np.random.randn()
+def viewdata(dataframe):
         
+        mplf.plot(dataframe, type='candle', style='charles', title='OHLC Chart', ylabel='Price')
+        mplf.show()  
 def test():
+        
         df=pd.read_csv(os.path.join("data/GBPUSD5MIN","GBPUSD_M5_2020_01_06_0000_2023_09_04_0045.csv"))
         def datadynamicprocess(df):
 
@@ -926,23 +932,33 @@ def test():
                 dataframe[[ i.title().replace("<","").replace(">","")  for i in df.columns.to_list()]]=df[[i for i in df.columns.to_list()]]
 
 
-                dataframe=ProcessDataWithAllFunctions(dataframe[10:10000])
+                
 
                 dataframe["Date"]=pd.to_datetime(dataframe["Date"],format='%Y.%m.%d')
-
+                
                 dataframe.set_index("Date",inplace=True)
                 dataframe=dataframe.drop("Vol",axis=1)
+                viewdata(dataframe)
                 return dataframe
-        dataframe=datadynamicprocess(df[:10000])
-        # base_env=GBPForexEnvironment(dataframe,account_balance=10_000)
-        # check_env(base_env)
-        env=FXTorchEnv(data=dataframe)
-        check_env_specs(env)
-        env=TransformedEnv(env,Compose(DoubleToFloat(),StepCounter()))
-        rnd_policy_action=RandomPolicy(env.action_spec)
-        collector = SyncDataCollector(env, rnd_policy_action, frames_per_batch=50,total_frames=20000)
-        for i in collector:
-                print(i["action"])
+        dataframe=generateSineTestData()[30:]
+        viewdata(dataframe)
+        
+        env=GBPForexEnvironment(dataframe,account_balance=100_000)
+        #check_env(env)
+        waitaction=np.array( [3.00, 3020, 30500, 15.00])
+        buyaction= np.array([0.00, 3020, 2900, 20.00])
+
+        firstaction= np.array([0.00, 1.33500, 1.3500, 15.00])
+        
+        sellaction =np.array([1.00, 2120, 1000, 15.00])
+        
+        env.step(buyaction)
+        print(100)
+        for i in range(30):
+                env.step(waitaction)
+                print(20)
+        print(env.account_balance)
+        
 def environmenttest():
         testdata=generateSineTestData()
         env=FXTorchEnv(data=testdata[1000:],account_balance=100000)
@@ -967,6 +983,6 @@ def environmenttest():
         check_env_specs(env)
 
 if __name__=="__main__":
-        #test()
-        environmenttest()
+        test()
+        #environmenttest()
         

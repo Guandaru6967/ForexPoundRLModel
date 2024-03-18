@@ -16,6 +16,7 @@ from collections import defaultdict
 
 
 from torch.utils.data.dataset import ConcatDataset
+from torchrl.envs.utils import RandomPolicy
 from priceprocessor import PriceNormlizer
 from stable_baselines3.a2c import A2C
 from stable_baselines3.ppo import PPO
@@ -42,14 +43,14 @@ from torchrl.objectives import ClipPPOLoss
 from torchrl.envs import (TransformedEnv,Compose,DoubleToFloat,StepCounter,ObservationNorm)
 from torchrl.objectives.value import GAE
 from stable_baselines3 import PPO
-
+from torchinfo import summary
 
 from fxenvironment import FXTorchEnv 
 from convoluted_fx import ForexActorNeuralNetwork,ForexCriticNeuralNetwork
 from torchrl.envs.utils import check_env_specs, ExplorationType, set_exploration_type
 from gym_anytrading.envs import ForexEnv
 from sb3_contrib import RecurrentPPO
-from priceprocessor import ProcessDataWithAllFunctions
+from priceprocessor import ProcessDataWithAllFunctions,PirceDataNormalizer
 class ForexDataLoader(DataLoader):
         pass
 class ForexEnvDataSet(Dataset):
@@ -82,17 +83,15 @@ class ForexModelTrainEval():
         def datadynamicprocess(self,df):
 
                 dataframe=pd.DataFrame()
-
+                
                 dataframe[[ i.title().replace("<","").replace(">","")  for i in df.columns.to_list()]]=df[[i for i in df.columns.to_list()]]
-                print(dataframe.columns.to_list())
+                
+                
 
                 dataframe["Date"]=pd.to_datetime(dataframe["Date"],format='%Y.%m.%d')
 
                 dataframe.set_index("Date",inplace=True)
                 dataframe=dataframe.drop("Vol",axis=1)
-                for column in dataframe.columns.to_list():
-                      scaler=MinMaxScaler()
-                      dataframe[column]=scaler.fit_transform(dataframe[column].to_numpy())
                 
                 dataframe=dataframe.dropna()
                 
@@ -101,19 +100,28 @@ class ForexModelTrainEval():
 
         def __init__(self,dataframe):
                 #Data preprocessing
-                self.dataframe=self.datadynamicprocess(ProcessDataWithAllFunctions(dataframe))
+                self.dataframe=ProcessDataWithAllFunctions(self.datadynamicprocess(dataframe))
+                print(self.dataframe.head(1))
+                
+                self.TEMPORAL_WINDOW=912
+                
                 #Environment processing
-                self.base_env=FXTorchEnv(self.dataframe)
+                self.base_env=FXTorchEnv(self.dataframe,temporal_window=self.TEMPORAL_WINDOW)
+                #check_env_specs(self.base_env)
                 self.environment = TransformedEnv(
                 self.base_env,
                 Compose(
+                      StepCounter(),
                         DoubleToFloat(),
-                        StepCounter(),
-                ),
+                        
+                       #ObservationNorm(in_keys=["temporal_window_state"])
                 )
+                )
+                #self.environment.transform[2].init_stats(num_iter=1000, reduce_dim=0, cat_dim=0)
                 check_env_specs(self.environment)
                 #Hyperparamters
                 self.sub_batch_size = 64  # cardinality of the sub-samples gathered from the current data in the inner loop
+                self.batch_size=self.sub_batch_size*10
                 self.num_epochs = 10  # optimisation steps per batch of data collected
                 self.clip_epsilon = (
                 0.2  # clip value for PPO loss: see the equation in the intro for more context.
@@ -122,15 +130,17 @@ class ForexModelTrainEval():
                 self.lmbda = 0.95
                 self.entropy_eps = 1e-4
                 self.learning_rate=3e-4
-                self.FRAMES_PER_BATCH=500
-                self.TOTAL_FRAMES=50000
+                self.FRAMES_PER_BATCH=512#self.TEMPORAL_WINDOW
+                self.TOTAL_FRAMES=self.FRAMES_PER_BATCH*self.batch_size
 
                 #Actor(Policy) and Critic (Value) NNs
-                self.policynetwork=ForexActorNeuralNetwork(len(self.dataframe.columns.to_list()),self.environment.temporal_window)
+                self.policynetwork=ForexActorNeuralNetwork(len(self.dataframe.columns.to_list()),self.TEMPORAL_WINDOW)
                 
-                self.criticnetwork=ForexCriticNeuralNetwork(len(self.dataframe.columns.to_list()),self.environment.temporal_window)
+                self.criticnetwork=ForexCriticNeuralNetwork(len(self.dataframe.columns.to_list()),self.TEMPORAL_WINDOW)
                 
-                self.policy_tensordict=TensorDictModule(module=self.policynetwork,in_keys=["observation"],out_keys=["loc","scale"])
+                self.policy_tensordict=TensorDictModule(module=self.policynetwork,in_keys=["temporal_window_state"],out_keys=["loc", "scale"])
+                
+                print("rnd",self.environment.action_spec.rand())
                 #Policy and Value Modules
                 self.policy_module = ProbabilisticActor(
                         module=self.policy_tensordict,
@@ -144,19 +154,21 @@ class ForexModelTrainEval():
                         return_log_prob=True,
                         # we'll need the log-prob for the numerator of the importance weights
                         )
+                #print(self.policy_module(TensorDictModule({"observation":self.environment.reset()})))
+                #quit()
                 self.value_module = ValueOperator(
                         module=self.criticnetwork,
-                        in_keys=["observation"],
+                        in_keys=["temporal_window_state"],
                         )
                 
                
                 #Collector Module
+                random_policy=RandomPolicy(self.environment.action_spec)
                 self.collector = SyncDataCollector(
                         self.environment,
                         self.policy_module,
                         frames_per_batch=self.FRAMES_PER_BATCH,
-                        total_frames=self.TOTAL_FRAMES,
-                        split_trajs=False,
+                        total_frames=self.TOTAL_FRAMES,split_trajs=False
                         )
                 #Replay Buffer module
                 self.replay_buffer = ReplayBuffer(
@@ -164,7 +176,7 @@ class ForexModelTrainEval():
                         sampler=SamplerWithoutReplacement(),
                         )
                 #General Advantage Estimation Module
-                self.advantage_module=GAE(gamma=self.gamma,lmbda=self.lmbda,average_gae=True)
+                self.advantage_module=GAE(value_network=self.value_module,gamma=self.gamma,lmbda=self.lmbda,average_gae=True,)
                 #Loss Function Module
                 self.loss_module = ClipPPOLoss(
                 actor_network=self.policy_module,
@@ -181,28 +193,40 @@ class ForexModelTrainEval():
                 self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 self.optimizer, self.TOTAL_FRAMES // self.FRAMES_PER_BATCH, 0.0
                 )
+                print("All modules to train the model have been initialized.")
         def train(self):
                 logs = defaultdict(list)
-                pbar = tqdm(total=self.TOTAL_FRAMES)
+                pbar = tqdm.tqdm(total=self.TOTAL_FRAMES)
                 eval_str = ""
+                print("Loading data")
                 for i, tensordict_data in enumerate(self.collector):
                         # we now have a batch of data to work with. Let's learn something from it.
+                        print(f"\ntraining data indexed at {i} from the collecton\n")
                         for _ in range(self.num_epochs):
                                 # We'll need an "advantage" signal to make PPO work.
                                 # We re-compute it at each epoch as its value depends on the value
                                 # network which is updated in the inner loop.
-                                self.advantage_module(tensordict_data)
+                                print("\nSending tensordict data to the advantage module\n")
+                                
+                        
                                 data_view = tensordict_data.reshape(-1)
+                                print(f"\nSending reshaped tensordict data of shape {tensordict_data.shape} to  the replay buffer\n")
                                 self.replay_buffer.extend(data_view.cpu())
                                 for _ in range(self.FRAMES_PER_BATCH // self.sub_batch_size):
+                                        
+                                        print("\nTraining from sub-batch ")
                                         subdata = self.replay_buffer.sample(self.sub_batch_size)
+                                        print(subdata)
+                                        quit()
+                                        self.advantage_module(tensordict_data)
+
                                         loss_vals = self.loss_module(subdata.to("cpu"))
                                         loss_value = (
                                                 loss_vals["loss_objective"]
                                                 + loss_vals["loss_critic"]
                                                 + loss_vals["loss_entropy"]
                                         )
-
+                                        print("Made an optimization step")
                                         # Optimization: backward, grad clipping and optimization step
                                         loss_value.backward()
                                         # this is not strictly mandatory but it's good practice to keep
@@ -227,6 +251,7 @@ class ForexModelTrainEval():
                                 # number of steps (1000, which is our ``env`` horizon).
                                 # The ``rollout`` method of the ``env`` can take a policy as argument:
                                 # it will then execute this policy at each step.
+                                print("Evaluating policy ")
                                 with set_exploration_type(ExplorationType.MEAN), torch.no_grad():
                                         # execute a rollout with the trained policy
                                         eval_rollout = self.environment.rollout(1000, self.policy_module)
@@ -250,23 +275,9 @@ class ForexModelTrainEval():
 
 
 
-def datadynamicprocess(df):
-
-        dataframe=pd.DataFrame()
-
-        dataframe[[ i.title().replace("<","").replace(">","")  for i in df.columns.to_list()]]=df[[i for i in df.columns.to_list()]]
-        print(dataframe.columns.to_list())
-
-        dataframe["Date"]=pd.to_datetime(dataframe["Date"],format='%Y.%m.%d')
-
-        dataframe.set_index("Date",inplace=True)
-        dataframe=dataframe.drop("Vol",axis=1)
-        
-        return dataframe
 def ModelRun():
-      from priceprocessor import ProcessDataWithAllFunctions
       datapath=os.path.join("data/GBPUSD5min","GBPUSD_M5_2020_01_06_0000_2023_09_04_0045.csv")
-      df=pd.read_csv(datapath,delimiter="\t")[:50000]
+      df=pd.read_csv(datapath)[:5000]
       fxbot=ForexModelTrainEval(df)
       fxbot.train()
       

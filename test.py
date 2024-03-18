@@ -26,7 +26,6 @@ from torchrl.data.replay_buffers import ReplayBuffer
 from torchrl.data.replay_buffers.samplers import (SamplerWithoutReplacement)
 
 from tensordict.nn.distributions import NormalParamExtractor
-from trading_algo import GBPForexEnvironment
 if torch.cuda.is_available():
     # Get the number of available GPUs
     num_gpus = torch.cuda.device_count()
@@ -108,8 +107,10 @@ def generateSineTestData():
         #print(df)
         #df=df[['Open' ,'High', 'Low', 'Close']]
         return df
+
 datapath=os.path.join("data/GBPUSD5MIN","GBPUSD_M5_2020_01_06_0000_2023_09_04_0045.csv")
-df=pd.read_csv(datapath,delimiter="\t")
+df=pd.read_csv(datapath)
+
 def datadynamicprocess(df):
 
         dataframe=pd.DataFrame()
@@ -123,9 +124,30 @@ def datadynamicprocess(df):
 
         dataframe.set_index("Date",inplace=True)
         dataframe=dataframe.drop("Vol",axis=1)
-        dataframe=dataframe.drop("Time",axis=1)
         return dataframe
-df.to_csv(datapath)
+
+
+from tensordict import TensorDict
+from tensordict.nn import TensorDictModule
+from torchrl.data import BoundedTensorSpec
+from torchrl.modules import ProbabilisticActor, NormalParamWrapper, TanhNormal
+td = TensorDict({"observation": torch.randn(3, 4)}, [3,])
+print(td["observation"])
+action_spec = BoundedTensorSpec(high=[0,100,100,10],low=[0,0,0,0],shape=torch.Size([4]))
+module = NormalParamWrapper(torch.nn.Linear(4, 8))
+tensordict_module = TensorDictModule(module, in_keys=["observation"], out_keys=["loc", "scale"])
+td_module = ProbabilisticActor(
+module=tensordict_module,
+spec=action_spec,
+in_keys=["loc", "scale"],
+distribution_class=TanhNormal,
+   )
+td = td_module(td)
+for field in td.keys():
+        print(field,td[field])
+
+# mplf.plot(datadynamicprocess(df[:10000]), type='candle', style='charles', title='OHLC Chart', ylabel='Price')
+# mplf.show()
 quit()
 base_env=GBPForexEnvironment(datadynamicprocess(df),account_balance=100)
 base_env=TestEnv()

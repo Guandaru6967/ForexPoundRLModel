@@ -28,6 +28,9 @@ def ProcessDataWithAllFunctions(data):
     data=setCandleStickData(data)
     data=setCandleStickPatterns(data)
     data=addMinutesofDay(data)
+
+    data= data.loc[:, ~data.columns.str.startswith('Unnamed')]
+    
     return data
 
 def addIndicators(data,sma=True,fractals=True):
@@ -73,6 +76,16 @@ def setCandleStickData(data:pd.DataFrame):
     data["Bearish"]=data["Bullish"].replace({True: 1, False: 0})
     
     return data
+def PirceDataNormalizer(dataframe):
+    for column in dataframe.columns.to_list():
+            scaler=MinMaxScaler()
+            datanumpy=np.array([dataframe[column].to_numpy()]).T
+    
+            transformeddt=scaler.fit_transform(datanumpy).T[0]
+     
+            dataframe[column]=transformeddt
+  
+    return dataframe
 def fiveMinAsFourHour(data):
     """
     Gets a 5 Min data set and returns a 4Hr data set
@@ -103,13 +116,13 @@ def PriceNormlizer(pricedata)->pd.DataFrame:
             Normalizes the prices of the Forex Instrument
             """
             data=pricedata.copy()
-            print(data)
+          
             data.reset_index(inplace=True)
             data=data[["Open","High","Low","Close"]]
             scaler=MinMaxScaler()
             data=pd.DataFrame(scaler.fit_transform(data), columns=data.columns, index=data.index)
             othercolumns=[]
-            print("Normalized data:\n-----------\n",data)
+            #print("Normalized data:\n-----------\n",data)
             for i in pricedata.columns.tolist():
                 
                 if i not in ["Open","High","Low","Close"]:
@@ -208,35 +221,52 @@ def calculate_zigzag(data, threshold=-0.00025):
     
     main_data["Zigzag"]=zigzag_line.to_numpy().T.flatten()
     main_data["Zigzag"].fillna(0)
-    print("zigzag:\n ============",data)
+    #print("zigzag:\n ============",data)
     #zigzag_line_df = zigzag_line.reindex(data.index).interpolate(method='time')
     return main_data
 def addSMCData(data:pd.DataFrame):
-    def loadcolumnAtoB(a,b):
+    def loadcolumnAtoB(A:pd.Series,B:pd.DataFrame):
+        a=A.copy()
+        if type(a) is pd.Series:
+            a=a.to_frame()
+        b=B.copy()
         columnlist=a.columns.to_list()
         maincolumn=columnlist[0]
         for column in columnlist:
+                if "Level" in column:
+                    continue
                 column_name=column
-                if(column==maincolumn):
-                        pass
+                if(column!=maincolumn):
+                          column_name=maincolumn+"_"+column
                 else:
-                        column_name=maincolumn+"_"+column
-                b[column_name]=a[column]
-                
+                    pass
+                b[column_name]=a[column].to_numpy()
+        del A
+        del B
         return b
+    #print(data)
     ohlc_data=data[["Open","High","Low","Close"]].copy()
+    for i in ohlc_data.columns.to_list():
+        ohlc_data[i.lower()]=ohlc_data[i]
+        ohlc_data=ohlc_data.drop(i,axis=1)
     fairvaluedata=smc.fvg(ohlc_data)
+    fairvaluedata=fairvaluedata.fillna(-0)
     data=loadcolumnAtoB(fairvaluedata,data)
     orderblock=smc.ob(ohlc_data)
+    orderblock=orderblock.fillna(-0)
     data=loadcolumnAtoB(orderblock,data)
     # print(ohlc_data)
-    # highs_lows=smc.highs_lows(ohlc_data)
+    highs_lows=smc.highs_lows(ohlc_data)
+
+    highs_lows=highs_lows.fillna(-0,axis=1)
+
     # print(highs_lows)
-    # highs_lows["Levels"]=highs_lows["Levels"].fillna(-1)
-    # data=loadcolumnAtoB(highs_lows,data)
-    # liquidity=smc.liquidity(ohlc_data)
-    # data=loadcolumnAtoB(liquidity,data)
-  
+    highs_lows["Levels"]=highs_lows["Levels"].fillna(0)
+    data=loadcolumnAtoB(highs_lows,data)
+    liquidity=smc.liquidity(ohlc_data)
+    
+    liquidity=liquidity.fillna(-0,axis=1)
+    data=loadcolumnAtoB(liquidity,data)
     return data
 def addMinutesofDay(data:pd.DataFrame):
     import datetime
